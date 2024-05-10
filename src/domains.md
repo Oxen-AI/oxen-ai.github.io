@@ -1,6 +1,6 @@
-# Domains
+# Domain Objects
 
-This is a reference for the core domain objects within Oxen. These domains are defined so we are all speaking the same language while diving into the code base. Starting from how objects are stored on disk, to what properties they contain, we will build up intuition of how the system works as a whole.
+Learning about the different domain objects is a good place to start. These domains are defined so we are all speaking the same language while diving into the code base. Starting from what the objects are, why they exist, and how objects are stored on disk, we will build up intuition of how the system works as a whole.
 
 # File Structure
 
@@ -21,23 +21,18 @@ ls .oxen
 You will see a variety of files and folders, including:
 
 ```
-config.toml
 commits/
 history/
 objects/
 refs/
 HEAD
+config.toml
 ```
 
-Let's use these files and folders as a jumping off point to learn about the different domain objects. Since at it's core, Oxen is a version control system, let's start with what is a "version" and how is it represented?
+Let's use these files and folders as a jumping off point to learn about the different domain objects. 
 
-# Config.toml
+# First Up: Repositories
 
-The first file you will notice is a simple configuration file `config.toml`
+All of the domain objects exist within the context of a "Repository", so let's [start there](domains/repositories.md). All of the files and folders within the `.oxen` directory represent different sub components of a Repository, but we need some over arching objects to kick the process all off. These are what we call the `LocalRepository` and `RemoteRepository`.
 
-TODO: Cleanup the path from here
-
-# Next Up
-
-What is this `commits/` directory and how do we keep track of versions? Let's deep dive into [commit objects](domains/commits.md) next.
 

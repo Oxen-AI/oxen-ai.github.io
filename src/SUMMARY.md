@@ -4,8 +4,8 @@
 
 - [Domains](./domains.md)
     - [Repositories](./domains/repositories.md)
-    - [User](./domains/user.md)
     - [Commits](./domains/commits.md)
+    - [User](./domains/user.md)
     - [Branches](./domains/branches.md)
     - [Data Frames](./domains/data_frames.md)
     - [Schemas](./domains/schemas.md)

@@ -27,3 +27,7 @@ This is always one of the first questions we get. The simple answer is that ther
 # Why the name Oxen?
 
 "Oxen" 🐂 comes from the fact that the tooling will plow, maintain, and version your data like a good farmer tends to their fields 🌾. During the agricultural revolution the Ox allowed humans to automate the process of plowing fields so they could specialize in higher level tasks. Data is the lifeblood of ML/AI. Let Oxen take care of the grunt work of your infrastructure so you can focus on the higher-level problems that matter to your product.
+
+# Where to start?
+
+In order to fully grok the Oxen codebase, it's important to define a few terms and understand the different [domain objects](domains.md). This way you'll have the right terminology to build upon and know where to look when adding or debugging features.
