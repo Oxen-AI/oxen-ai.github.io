@@ -1,16 +1,18 @@
-# Grokking Oxen
+# 🐂 🌾 Oxen.ai
 
-In the spirit of building in public, this book is a guide to the internal workings of the Oxen Command Line Interface (CLI) and Oxen Server. Each section dives into a different part of the code base. It is a resource for engineers who want to contribute or extend the tooling, or simply want to learn the inner workings.
+Welcome to the Herd! This is a whirlwind tour of the Oxen.ai codebase. This is an evolving artifact meant to document the tool and codebase.
+
+Each section dives into a different part of the code base as well as the file formats on disk. It is a resource for engineers who want to contribute or extend the tooling, or simply want to learn the inner workings.
 
 # What is Oxen?
 
 Oxen at it's core is a blazing fast data version control tool written in Rust. It is optimized for large machine learning datasets. These datasets could consist of many small files (think an images/ folder for computer vision tasks), a few large files (a collection of timeseries datasets as csvs), or many large files (an LLM pre-training dataset of parquet files).
 
-In the [Git Book](https://git-scm.com/book/en/v2/Getting-Started-About-Version-Control) they define "Version Control" as "a system that records changes to a file or set of files over time so that you can recall specific versions later." As a software engineer we typically use tools such as `git` to version our source code. This allows us to keep every single version of a file so that we can revert back to a previous state and compare changes over time.
+In the [Git Book](https://git-scm.com/book/en/v2/Getting-Started-About-Version-Control) they define "Version Control" as "a system that records changes to a file or set of files over time so that you can recall specific versions later." As a software engineer we typically use tools such as `git` to version our source code. This allows us to keep every single version of a file so that we can revert back to a previous state and compare changes over time. While `git` is great for versioning smaller assets such as files in a code base, it struggles to version large datasets.
 
 # Why build Oxen?
 
-Git and it's extensions are great for source code, but do not scale well when applied to much larger repositories of data. As a machine learning engineer, we were frustrated with the speed of managing and iterating on datasets that traditionally would not fit well into `git`. There are extensions to `git` such as `git-lfs` but they are like fitting a square peg in a round hole and come with their own issues. 
+As machine learning engineers, we were frustrated with the speed of managing and iterating on datasets that traditionally would not fit well into `git`. There are extensions to `git` such as `git-lfs` but they are like fitting a square peg in a round hole and come with their own issues. 
 
 Data versions should be easy to interact with locally, fast to sync to a remote, seamless contribute to, and feel like you have terrabytes accessible at your fingertips by slicing and downloading subsets locally when you need it.
 

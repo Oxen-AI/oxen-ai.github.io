@@ -1,6 +1,13 @@
 # Building Oxen Command by Command
 
-[Oxen.ai](./init.md)
+[🐂 🌾 Oxen.ai](./init.md)
+
+- [Development](./development.md)
+    - [Installation](./development/installation.md)
+    - [Build & Run](./development/build_and_run.md)
+    - [Adding a Command](./development/add_command.md)
+    - [Testing](./development/testing.md)
+    - [Release](./development/release.md)
 
 - [Domains](./domains.md)
     - [Repositories](./domains/repositories.md)
@@ -40,10 +47,3 @@
     - [Networking](./optimizations/networking.md)
     - [Remote Workspace](./optimizations/remote_workspace.md)
     - [Storage](./optimizations/storage.md)
-
-- [Development](./development.md)
-    - [Installation](./development/installation.md)
-    - [Build & Run](./development/build_and_run.md)
-    - [Adding a Command](./development/add_command.md)
-    - [Testing](./development/testing.md)
-    - [Release](./development/release.md)

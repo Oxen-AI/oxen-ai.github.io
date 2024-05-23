@@ -31,6 +31,76 @@ $ oxen add hello.txt world.txt
 $ oxen commit -m "Add hello.txt and world.txt"
 ```
 
+Each file that gets added and committed to oxen gets stored in a [Content Addressable File System](https://en.wikipedia.org/wiki/Content-addressable_storage) in the `.oxen/versions` directory. Oxen first computes a [hash of the file](optimizations/hashing.md), then stores the file in a sub directory that mirrors the hash. This means that the file can be retrieved by its hash at any time.
+
+```bash
+$ tree .oxen/versions
+
+.oxen/versions
+└── files
+    ├── 18
+    │   └── 066113d946cfa640ffc8773c83f61b
+    │       └── data.txt
+    └── a7
+        └── 666c8f5aaf946ca629d9d20c29aa6a
+            └── data.txt
+
+6 directories, 2 files
+```
+
+Currently the files in Oxen are uncompressed in the versions directory, so you can simply `cat` the file to see the contents.
+
+Note: We have compression in our list of [improvements](improvements.md) that could be made to the system.
+
+```bash
+$ cat .oxen/versions/files/a7/666c8f5aaf946ca629d9d20c29aa6a/data.txt
+
+Hello
+```
+
+Let's change the `hello.txt` file and commit it again.
+
+```bash
+$ echo "Hello, World!" > hello.txt
+$ oxen add hello.txt
+$ oxen commit -m "Update hello.txt"
+```
+
+Now look at the `.oxen/versions` directory. You will see that we have a new hashed directory for the file. This means that the file has been updated and a new snapshot has been created.
+
+```bash
+$ tree .oxen/versions
+
+.oxen/versions
+└── files
+    ├── 18
+    │   └── 066113d946cfa640ffc8773c83f61b
+    │       └── data.txt
+    ├── a7
+    │   └── 666c8f5aaf946ca629d9d20c29aa6a
+    │       └── data.txt
+    └── ce
+        └── 1931b6136c7ad3e2a42fb0521986ba
+            └── data.txt
+
+8 directories, 3 files
+```
+
+Let's look at each individual file in the versions dir.
+
+```bash
+$ cat .oxen/versions/files/a7/666c8f5aaf946ca629d9d20c29aa6a/data.txt
+Hello
+
+$ cat .oxen/versions/files/18/066113d946cfa640ffc8773c83f61b/data.txt
+World
+
+$ cat .oxen/versions/files/ce/1931b6136c7ad3e2a42fb0521986ba/data.txt
+Hello, World!
+```
+
+This doesn't give you the full picture of how Oxen works, but it hopefully gives you a starting point into the Content Addressable File System that Oxen uses to store all versions of the files. We will get into the details of the other databases as we dive into other domains and commands.
+
 ## LocalRepository
 
 Since all of the data for all of the versions is simply stored in a hidden subdirectory, the first object we introduce is the `LocalRepository`. This object simply represents the `path` to the repository so that we know where to look for subsequent objects.
