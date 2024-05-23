@@ -17,8 +17,6 @@
     - [Data Frames](./domains/data_frames.md)
     - [Schemas](./domains/schemas.md)
     - [Diffs](./domains/diffs.md)
-    - [Remotes](./domains/remotes.md)
-    - [Namespaces](./domains/namespaces.md)
 
 - [Commands](./commands.md)
     - [init](./commands/init.md)

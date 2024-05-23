@@ -195,3 +195,26 @@ ls -trla /path/to/sync/dir/my-namespace/my-repo/.oxen
 
 What's cool is that on disk the `RemoteRepository` is the same structure as the `LocalRepository`. This means that we can use the same code to manipulate the `RemoteRepository` on the server as we can the `LocalRepository` on the client.
 
+If you didn't configure the remote earlier, you can do so now.
+
+```bash
+oxen config --set-remote origin http://0.0.0.0:3000/my-namespace/my-repo
+```
+
+Then simply push the data to the remote.
+
+```bash
+oxen push
+```
+
+This copies all the data from the local .oxen directory to the remote repository. Remember the versions directory from before? Let's see what it looks like on the remote.
+
+```bash
+$ cat /path/to/sync/dir/my-namespace/my-repo/.oxen/versions/files/ce/1931b6136c7ad3e2a42fb0521986ba/data.txt
+Hello, World!
+```
+
+There we go! Data is in tact on the remote server. This is the beauty of Oxen. There are not too many fancy bells and whistles when you look under the hood. Just a content addressable file system with a library that is shared between the client and server.
+
+Next up we will look at [Commits](domains/commits.md). These objects represent the group of files that were are in a single snapshot, and we will learn how Oxen knows which versions were added, removed, changed in the repository and when.
+
