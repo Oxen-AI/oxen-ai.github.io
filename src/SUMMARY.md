@@ -44,5 +44,6 @@
 - [Development](./development.md)
     - [Installation](./development/installation.md)
     - [Build & Run](./development/build_and_run.md)
+    - [Adding a Command](./development/add_command.md)
     - [Testing](./development/testing.md)
     - [Release](./development/release.md)

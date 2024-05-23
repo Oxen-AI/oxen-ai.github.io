@@ -2,9 +2,34 @@
 
 When we talk about data in Oxen, we usually talk about "Repositories". A Repository lives within your working directory of data in a hidden `.oxen` directory. You can think of a Repository as a series of snapshots of your data at any given point in time. 
 
-TODO: Image
+![File Versions](/images/versions.png)
 
 Each snapshot contains a "mini filesystem" representing all the files and folders in that snapshot. The each mini filesystem is represented by a [commit](domains/commits.md), and is stored in the `.oxen` directory so that we can return to it at any point in time.
+
+To see this in action let's instantiate a local oxen repository and see what it looks like.
+
+```bash
+$ oxen init
+$ ls -trla
+```
+
+```
+total 0
+drwxr-xr-x  23 bessie  staff  736 May 22 16:41 ../
+drwxr-xr-x   3 bessie  staff   96 May 22 16:41 ./
+drwxr-xr-x  10 bessie  staff  320 May 22 16:41 .oxen/
+```
+
+This magic `.oxen` directory is what will hold all the snapshots of your data. Think of it as a local database that lets you roll back your data to any point in time.
+
+Let's add and commit some files to the repository and see what happens.
+
+```bash
+$ echo "Hello" > hello.txt
+$ echo "World" > world.txt
+$ oxen add hello.txt world.txt
+$ oxen commit -m "Add hello.txt and world.txt"
+```
 
 ## LocalRepository
 
@@ -22,3 +47,81 @@ pub struct LocalRepository {
 ```
 
 Whenever starting down a code path within the CLI the first thing we do is find where the `.oxen` directory is and instantiate our `LocalRepository` object.
+
+There is a handy helper method to get a repo from the current dir. This recursively traverses up in the directory structure to find a `.oxen` directory and instantiates the `LocalRepository` object.
+
+```rust
+let repository = LocalRepository::from_current_dir()?;
+```
+
+You may want to reference the code for the [add](https://github.com/Oxen-AI/Oxen/blob/main/src/cli/src/cmd/add.rs) command to see how instantiating a `LocalRepository` works in practice.
+
+You will notice that not only does a `LocalRepository` have a `path`, but it also has a `remote_name` and `remotes`. These are read from `.oxen/config.toml` and tell inform Oxen where to sync the data to.
+
+# Remotes
+
+A remote in the context of Oxen is simply a name and a url. The name is a human readable representation and the url is the actual location of the remote repository.
+
+```rust
+pub struct Remote {
+    pub name: String,
+    pub url: String,
+}
+```
+
+The remotes can be set through the `oxen config` command.
+
+```bash
+oxen config --set-remote origin http://localhost:3001/my-namespace/my-repo
+```
+
+If you look in the `.oxen/config.toml` file you will see the remotes listed there.
+
+```toml
+remote_name = "origin"
+
+[[remotes]]
+name = "origin"
+url = "http://localhost:3001/my-namespace/my-repo"
+```
+
+You can have multiple remotes as well as a default remote specified by `remote_name`. The default remote is the remote that will be used when you run `oxen push` or `oxen pull` without specifying a remote.
+
+## RemoteRepository
+
+On the other end of the `LocalRepository` is the `RemoteRepository`. This object represents the remote repository that the `LocalRepository` is connected to. It has the same `url` as the `Remote` object.
+
+```rust
+pub struct RemoteRepository {
+    pub namespace: String,
+    pub name: String,
+    pub remote: Remote,
+}
+```
+
+All repositories that are stored on the `oxen-server` have a `namespace` and `name`. This helps us organize the repositories on disk, as well as in a way that is meaningful to the user.
+
+In order to create a `RemoteRepository` we will first need to spin up an `oxen-server` instance. From your debug build you can do something like the following.
+
+```bash
+export SYNC_DIR=/path/to/sync/dir
+./target/debug/oxen-server start
+```
+
+This will start a server on the default host 0.0.0.0 and port 3000. The environment variable `SYNC_DIR` tells the server where to write the data to on disk.
+
+
+Then we can use the `oxen create-remote` command from the CLI.
+
+```bash
+oxen create-remote --name my-namespace/my-repo --host 0.0.0.0:3000 --scheme http
+```
+
+If you look in the `SYNC_DIR` you will see a directory structure that mirrors the namespace/repo-name of the repository you just created. There will be a `.oxen` directory with the remote repository created for you as well.
+
+```bash
+ls -trla /path/to/sync/dir/my-namespace/my-repo/.oxen
+```
+
+What's cool is that on disk the `RemoteRepository` is the same structure as the `LocalRepository`. This means that we can use the same code to manipulate the `RemoteRepository` on the server as we can the `LocalRepository` on the client.
+
