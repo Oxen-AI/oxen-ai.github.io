@@ -1,6 +1,6 @@
 # Optimizations
 
-There are many optimizations that make Oxen go brrr. From the core merkle tree structure, to hashing protocol, to networking, to interacting with remote datasets. Oxen is meant to make it feel like you have terrabytes of data at your fingertips whatever machine you are on.
+There are many optimizations that make Oxen go brrr. From the core merkle tree structure, to hashing protocol, to networking, to interacting with remote datasets. Oxen is meant to make it feel like you have terabytes of data at your fingertips whatever machine you are on.
 
 # ~TLDRs~
 
@@ -27,7 +27,7 @@ Without diving into the gnitty gritty details, here are some highlights. If you 
 * pure hashing throughput
 * non-cryptographic hashing fn
 
-## Compression
+## Compression (Coming Soon)
 
 * Block level dedup
 * zlib
@@ -44,6 +44,8 @@ Without diving into the gnitty gritty details, here are some highlights. If you 
 * Smart Chunking
 
 ## Remote Workspaces
+
+Don't download the entire dataset just to contribute.
 
 * oxen remote add
 * oxen remote commit

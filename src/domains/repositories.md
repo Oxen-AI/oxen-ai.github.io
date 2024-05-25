@@ -22,7 +22,9 @@ drwxr-xr-x  10 bessie  staff  320 May 22 16:41 .oxen/
 
 This magic `.oxen` directory is what will hold all the snapshots of your data. Think of it as a local database that lets you roll back your data to any point in time.
 
-Let's add and commit some files to the repository and see what happens.
+# Content Addressable File System
+
+How are the different versions stored on disk? Let's add and commit some files to the repository and see what happens.
 
 ```bash
 $ echo "Hello" > hello.txt
@@ -48,15 +50,30 @@ $ tree .oxen/versions
 6 directories, 2 files
 ```
 
-Currently the files in Oxen are uncompressed in the versions directory, so you can simply `cat` the file to see the contents.
+What's up with these funky hexadecimal directory names? Well each directory is a [xxHash](optimizations/hashing.md) of the file. To see this in action, Oxen has a handy command to inspect information about an individual file.
 
-Note: We have compression in our list of [improvements](improvements.md) that could be made to the system.
+```bash
+oxen info -v world.txt
+
+hash	size	data_type	mime_type	extension	last_updated_commit_id
+18066113d946cfa640ffc8773c83f61b	6	text	text/plain	txt	2c610ae8e424a4c8
+```
+
+`oxen info` prints out a tab separated list of the hash, size, data type, mime type, extension, and the last updated commit id of the file. The hash in this case is `18066113d946cfa640ffc8773c83f61b`. As for the directory structure above, you can see we split the hash and use the first two characters (`18`) of the hash as a prefix to the directory name. This is a common pattern in content addressable file systems to make sure you do not have too many files in a single sub-directory.
+
+# Manually Inspect Older Versions
+
+Currently the files in Oxen are uncompressed in the versions directory, so you can simply `cat` the file to see the contents.
 
 ```bash
 $ cat .oxen/versions/files/a7/666c8f5aaf946ca629d9d20c29aa6a/data.txt
 
 Hello
 ```
+
+Note: We have compression in our list of [future improvements](improvements.md) that could be made to the system.
+
+## Storing New Versions
 
 Let's change the `hello.txt` file and commit it again.
 
@@ -99,7 +116,7 @@ $ cat .oxen/versions/files/ce/1931b6136c7ad3e2a42fb0521986ba/data.txt
 Hello, World!
 ```
 
-This doesn't give you the full picture of how Oxen works, but it hopefully gives you a starting point into the Content Addressable File System that Oxen uses to store all versions of the files. We will get into the details of the other databases as we dive into other domains and commands.
+While this doesn't give you the full picture of how Oxen works, hopefully gives you a starting point into the Content Addressable File System that Oxen uses to store all versions of the files. We will get into the details of the [commit databases](domains/commits.md) and other data structures as we dive into more domains.
 
 ## LocalRepository
 

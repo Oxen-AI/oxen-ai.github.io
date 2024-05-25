@@ -24,7 +24,7 @@ When it comes to open source contribution and scaling up a software project this
 
 # Why is Oxen fast?
 
-This is always one of the first questions we get. The simple answer is that there are  There are many [optimizations](./optimizations.md) that make Oxen fast. Many are just fundamental computer science concepts but when stacked together make a nice developer experience for iterating on datasets.
+This is always one of the first questions we get. The simple answer is that there are many [optimizations](./optimizations.md) that make Oxen fast. Many are just fundamental computer science concepts but when stacked together make a nice developer experience for iterating on datasets.
 
 # Why the name Oxen?
 
@@ -32,4 +32,6 @@ This is always one of the first questions we get. The simple answer is that ther
 
 # Where to start?
 
-In order to fully grok the Oxen codebase, it's important to define a few terms and understand the different [domain objects](domains.md). This way you'll have the right terminology to build upon and know where to look when adding or debugging features.
+First you will want to [install Oxen](./development/installation.md). Once you have the tool up and running, we can dive into the implementation details.
+
+In order to fully grok the Oxen codebase, it's important to define a few terms and understand the different [domain objects](domains.md). This way you'll have the right terminology to build upon and know where to look when adding or debugging features. Let's start by learning about [repositories](./domains/repository.md).

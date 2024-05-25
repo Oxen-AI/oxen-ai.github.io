@@ -1,0 +1,155 @@
+
+# 🛠️ Installation
+
+How to install the Oxen client, server, or python package. If you are a developer, you will want to [build from source](#building-from-source). If you are flying by and learning Oxen you can install the python package or the command line tool from the [GitHub releases page](https://github.com/Oxen-AI/Oxen/releases).
+
+## Python Package
+
+```bash
+$ pip install oxenai
+```
+
+Note that this will only install the Python library and not the command line tool.
+
+### Installing Oxen through Jupyter Notebooks or Google Colab
+
+Create and run this cell:
+```python
+!pip install oxenai
+```
+
+## Command Line Tools
+
+The Oxen client can be installed via [homebrew](https://brew.sh/) or by downloading the relevant binaries for Linux or Windows.
+
+You can find the source code for the client [here](https://github.com/Oxen-AI/Oxen) and can also build for source for your platform. The continuous integration pipeline will build binaries for each release in [this repository](https://github.com/Oxen-AI/Oxen).
+
+### Mac
+
+```bash
+brew tap Oxen-AI/oxen
+```
+
+```bash
+brew install oxen
+```
+
+### Ubuntu Latest
+
+Check the [GitHub releases page](https://github.com/Oxen-AI/Oxen/releases) for the latest version of the client and server.
+
+```bash
+wget https://github.com/Oxen-AI/Oxen/releases/latest/download/oxen-ubuntu-latest.deb
+```
+
+```bash
+sudo dpkg -i oxen-ubuntu-latest.deb
+```
+
+### Ubuntu 20.04
+
+```bash
+wget https://github.com/Oxen-AI/Oxen/releases/latest/download/oxen-ubuntu-20.04.deb
+```
+
+```bash
+sudo dpkg -i oxen-ubuntu-20.04.deb
+```
+
+### Windows
+
+```bash
+wget https://github.com/Oxen-AI/Oxen/releases/latest/download/oxen.exe
+```
+
+### Other Linux
+
+Binaries are coming for other Linux distributions in the future. [In the meanwhile, you can build from source.](#building-from-source)
+
+## Server Install
+
+The Oxen server binary can be deployed where ever you want to store and backup your data. It is an HTTP server that the client communicates with to enable collaboration.
+
+### Mac
+
+```bash
+brew tap Oxen-AI/oxen-server
+```
+
+```bash
+brew install oxen-server
+```
+
+### Docker
+
+```bash
+wget https://github.com/Oxen-AI/Oxen/releases/latest/download/oxen-server-docker.tar
+```
+
+```bash
+docker load < oxen-server-docker.tar
+```
+
+```bash
+docker run -d -v /var/oxen/data:/var/oxen/data -p 80:3001 oxen/oxen-server:latest
+```
+
+### Ubuntu Latest
+
+```bash
+wget https://github.com/Oxen-AI/Oxen/releases/latest/download/oxen-server-ubuntu-latest.deb
+```
+
+```bash
+sudo dpkg -i oxen-server-ubuntu-latest.deb
+```
+
+### Ubuntu 20.04
+
+```bash
+wget https://github.com/Oxen-AI/Oxen/releases/latest/download/oxen-server-ubuntu-20.04.deb
+```
+
+```bash
+sudo dpkg -i oxen-server-ubuntu-20.04.deb
+```
+
+### Windows
+
+```bash
+wget https://github.com/Oxen-AI/Oxen/releases/latest/download/oxen-server.exe
+```
+
+To get up and running using the client and server, you can follow the [getting started docs](https://github.com/Oxen-AI/oxen-release).
+
+## Building from Source
+
+To build the command line tool from source, you can follow these steps.
+
+1. Install rustup via the instructions at https://rustup.rs/
+2. Clone the repository https://github.com/Oxen-AI/Oxen
+    ```bash
+    git clone git@github.com:Oxen-AI/Oxen.git
+    ```
+3. `cd` into the cloned repository
+    ```bash
+    cd Oxen
+    ```
+4. Run this command (the release flag is recommended but not necessary):
+    ```bash
+    cargo build --release
+    ```
+5. After the build has finished, the `oxen` binary will be in `Oxen/target/release` (or, if you did not use the --release flag, `Oxen/target/debug`).
+
+    Now, to make it usable from a terminal window, you have the option to add it to create a symlink or to add it to your `PATH`.
+6. To add oxen to your `PATH`:
+
+    Add this line to your `.bashrc` (or equivalent, e.g. `.zshrc`)
+    ```bash
+    export PATH="$PATH:/path/to/Oxen/target/release"
+    ```
+7. Alternatively, to create a symlink, run the following command:
+    ```bash
+    sudo ln -s /path/to/Oxen/target/release/oxen /usr/local/bin/oxen
+    ```
+    Note that if you did not use the `--release` flag when building Oxen, you will have to change the path.
