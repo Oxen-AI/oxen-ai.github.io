@@ -44,7 +44,7 @@ You'll see this prints the entire key value store as tab separated values.
 a36e6239a1ab49d4	{"id":"a36e6239a1ab49d4","parent_ids":["2c610ae8e424a4c8"],"message":"Update hello.txt","author":"oxbot","email":"oxbot@oxen.ai","root_hash":"7121f5302a90ea338f129ca169a39739","timestamp":"2024-05-23T00:43:53.303893Z"}
 ```
 
-If you want to get a specific commit, you can use the `oxen db get` command. For example, to get the commit `440b54a690b44fd7`, you can run the following command.
+If you want to get a specific commit, you can use the `oxen db get` command. For example, to get the commit `2c610ae8e424a4c8`, you can run the following command.
 
 ```
 $ oxen db get .oxen/commits/ 2c610ae8e424a4c8 | jq
@@ -63,13 +63,13 @@ $ oxen db get .oxen/commits/ 2c610ae8e424a4c8 | jq
 }
 ```
 
-Ah, there is a nice beautiful commit. You can see that the raw values are simply stored in the db as json. There is a list of parent commit ids, a message, the author, the email, and the timestamp.
+Ah, there is a nice beautiful commit object. You can see that the raw values are simply stored in the db as json. There is a list of parent commit ids, a message, the author, the email, and the timestamp.
 
 # Commit Metadata
 
-Each commit stores data about the user that committed it. The user data is read from the global `~/.config/oxen/user_config.toml` file. This is a toml file that contains the user's name and email.
+All of the metadata within a commit object is important for computing it's `id`. The id can be used to verify the integrity of the data within a commit. More on this later.
 
-You can set your user info with the `oxen config` command.
+The first piece of metadata is the user that made the commit. The user data is read from the global `~/.config/oxen/user_config.toml` file. You can set your user info with the `oxen config` command.
 
 ```bash
 $ oxen config --name 'Bessie' --email 'bessie@your_email.com'
@@ -90,7 +90,36 @@ It also contains the timestamp of the commit, and a user provided message. All o
 
 Each commit has a unique id (hash) that can be verified to ensure the integrity of the data in this commit. It is a combination of the data within all the files of the commit, the user data, timestamp, and the message.
 
-TODO: Link to the code that computes the hash.
+If you remember from the [repository](/domains/repositories.md#content-addressable-file-system) section, we compute the hash of each file when we add and commit it to the repository.
+
+The code for computing the commit id looks something like this:
+
+```rust
+pub fn compute_commit_hash<E>(commit_data: &NewCommit, entries: &[E]) -> String
+where
+    E: ContentHashable + std::fmt::Debug,
+{
+    // xxHasher
+    let mut commit_hasher = hasher::new();
+
+    // Write the hash of each entry to the commit hasher
+    for entry in entries.iter() {
+        let hash = entry.content_hash();
+        let input = hash.as_bytes();
+        commit_hasher.update(input);
+    }
+
+    // Write the user name, email, message, timestamp, and parent commit ids
+    let commit_str = format!("{commit_data:?}");
+    commit_hasher.update(commit_str.as_bytes());
+
+    // Return the hexadecimal representation of the commit id
+    let val = commit_hasher.digest();
+    format!("{val:x}")
+}
+```
+
+What's nice about this is that once the data has been synced to the remote server, we can verify that the data is valid by computing the hashes of the files and the commit data and comparing this to the id of the commit in the database.
 
 # 🌲 Commit Merkle Tree
 
