@@ -34,6 +34,6 @@ This is always one of the first questions we get. The simple answer is that ther
 
 # Where to start?
 
-First you will want to [install Oxen](./development/installation.md). Once you have the tool up and running, we can dive into the implementation details.
+First you will want to [install Oxen](./development/installation.md). Once you have the tool up and running, we can dive into the implementation details. If you already have the tool up and running, feel free to skip directly to learning about [domains](./domains.md) or [how to add a command](./development/add_command.md).
 
-In order to fully grok the Oxen codebase, it's important to define a few terms and understand the different [domain objects](domains.md). This way you'll have the right terminology to build upon and know where to look when adding or debugging features. Let's start by learning about [repositories](./domains/repository.md).
+Like any project, let's start by learning how to [build and run](./development/build_and_run.md) the codebase.

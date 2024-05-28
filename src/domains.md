@@ -1,6 +1,8 @@
 # Domain Objects
 
-Learning about the different domain objects is a good place to start. These domains are defined so we are all speaking the same language while diving into the code base. Starting from what the objects are, why they exist, and how objects are stored on disk, we will build up intuition of how the system works as a whole.
+In order to fully grok the Oxen codebase, it's important to define a few terms and understand the different [domain objects](domains.md). This way you'll have the right terminology to build upon and know where to look when adding or debugging features. 
+
+These domains are defined so we are all speaking the same language while diving into the code base. We will start with what the objects are, why they exist, and how objects are stored on disk, then we will build up intuition of how the system works as a whole.
 
 # File Structure
 

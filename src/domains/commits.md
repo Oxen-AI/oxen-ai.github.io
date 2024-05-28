@@ -123,8 +123,8 @@ What's nice about this is that once the data has been synced to the remote serve
 
 # 🌲 Commit Merkle Tree
 
-TODO: Talk about merkle tree. Maybe in different section
+TODO: Talk about merkle tree.
 
-As you can see, each commit has a list of parent commit ids. This is used to create a [commit tree](https://en.wikipedia.org/wiki/Commit_tree). The root commit will have no parent commits.
+As you can see, each commit has a list of parent commit ids. This is used to create a [merkle tree](https://en.wikipedia.org/wiki/Merkle_tree). The root commit will have no parent commits.
 
 Our first couple of examples will have a linear commit tree with one parent per commit. This is the most common case when getting started. But as you will see later with merge commits, commits can have multiple parent commits when combining work from multiple branches.
