@@ -10,15 +10,37 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 If you are a developer and want to learn more about adding code or the overall architecture [start here](docs/dev/AddLibraryCode.md). Otherwise a quick start to make sure everything is working follows.
 
-## Build
+## Building from Source
 
-Simply use `cargo` within the root directory to build. Cargo looks at `Cargo.toml` to figure out the dependencies and which binaries to build.
+To build the command line tool from source, you can follow these steps.
 
-```
-cargo build
-```
+1. Install rustup via the instructions at https://rustup.rs/
+2. Clone the repository https://github.com/Oxen-AI/Oxen
+    ```bash
+    git clone git@github.com:Oxen-AI/Oxen.git
+    ```
+3. `cd` into the cloned repository
+    ```bash
+    cd Oxen
+    ```
+4. Run this command (the release flag is recommended but not necessary):
+    ```bash
+    cargo build --release
+    ```
+5. After the build has finished, the `oxen` binary will be in `Oxen/target/release` (or, if you did not use the --release flag, `Oxen/target/debug`).
 
-Given all the dependencies, the first build can take quite awhile, feel free to go grab some coffee ☕️. Don't worry subsequent builds will be faster and we can speed up the linker later.
+    Now, to make it usable from a terminal window, you have the option to add it to create a symlink or to add it to your `PATH`.
+6. To add oxen to your `PATH`:
+
+    Add this line to your `.bashrc` (or equivalent, e.g. `.zshrc`)
+    ```bash
+    export PATH="$PATH:/path/to/Oxen/target/release"
+    ```
+7. Alternatively, to create a symlink, run the following command:
+    ```bash
+    sudo ln -s /path/to/Oxen/target/release/oxen /usr/local/bin/oxen
+    ```
+    Note that if you did not use the `--release` flag when building Oxen, you will have to change the path.
 
 ## Library, CLI, Server
 
@@ -36,40 +58,9 @@ server/
 
 The library is all the shared code between the CLI and Server. This contains the majority of classes and business logic. The CLI and Server are meant to be thin wrappers over the core oxen library functionality.
 
-The library is also used for the Python client (TODO: Link) which should also remain a thin wrapper.
+The library is also used for the [Python Client](https://github.com/Oxen-AI/oxen-release) which should also remain a thin wrapper.
 
-## Run
-
-After the build has finished, the `oxen` binary will be in `Oxen/target/release` (or, if you did not use the --release flag, `Oxen/target/debug`).
-
-Now, to make it usable from a terminal window, you have the option to add it to create a symlink or to add it to your `PATH`.
-
-To add oxen to your `PATH`:
-
-Add this line to your `.bashrc` (or equivalent, e.g. `.zshrc`)
-
-```bash
-export PATH="$PATH:/path/to/Oxen/target/release"
-```
-
-Alternatively, to create a symlink, run the following command:
-
-```bash
-sudo ln -s /path/to/Oxen/target/release/oxen /usr/local/bin/oxen
-```
-
-If you did not use the `--release` flag when building Oxen, you will have to change the path.
-
-Note: If you have previously installed Oxen through homebrew or other methods make sure it is removed from your $PATH. To verify which `oxen` you are running simply test
-
-```bash
-# figure out where oxen is installed
-which oxen
-# to see if it is a development build or install via homebrew
-ls -al /path/to/oxen
-```
-
-### Speed up the build process
+## Speed up the build process
 
 You can use
 the [mold](https://github.com/rui314/mold) linker to speed up builds (The
@@ -158,46 +149,6 @@ Then run the server like this
 
 ```
 cargo watch -- cargo run --bin oxen-server start
-```
-
-# Unit & Integration Tests
-
-Make sure your server is running on the default port and host, then run
-
-*Note:* tests open up a lot of file handles, so limit num test threads if running everything.
-
-You an also increase the number of open files your system allows ulimit before running tests:
-
-```
-ulimit -n 10240
-```
-
-```
-cargo test -- --test-threads=$(nproc)
-```
-
-It can be faster (in terms of compilation and runtime) to run a specific test. To run a specific library test:
-
-```
-cargo test --lib test_get_metadata_text_readme
-```
-
-To run a specific integration test
-
-```
-cargo test --test test_rm test_rm_directory_restore_directory
-```
-
-To run with all debug output and run a specific test
-
-```
-env RUST_LOG=warn,liboxen=debug,integration_test=debug cargo test -- --nocapture test_command_push_clone_pull_push
-```
-
-To set a different test host you can set the `OXEN_TEST_HOST` environment variable
-
-```
-env OXEN_TEST_HOST=0.0.0.0:4000 cargo test
 ```
 
 # CLI Commands

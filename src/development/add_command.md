@@ -116,9 +116,57 @@ Now that our command is implemented, we need to add it to the CLI. This is done 
 
 ```rust
 let cmds: Vec<Box<dyn cmd::RunCmd>> = vec![
-        Box::new(cmd::AddCmd),
-        Box::new(cmd::MooCmd), // Your new command
-    ];
+    Box::new(cmd::AddCmd),
+    Box::new(cmd::MooCmd), // Your new command
+];
 
 // ... run commands
 ```
+
+This should be all you need to get Oxen to go "MOO!". Let's build and run.
+
+```bash
+cargo build
+./target/debug/oxen moo --help
+```
+
+You will see the help menu for your new command.
+
+```bash
+Hello, world! 🐂
+
+Usage: oxen moo [OPTIONS]
+
+Options:
+  -n, --number <number>  How long is the moo? [default: 2]
+  -l, --loud             Make the MOO louder.
+  -h, --help             Print help
+```
+
+Then you can simply run your command.
+
+```bash
+./target/debug/oxen moo
+```
+
+You should see the output "moo"
+
+```
+moo
+```
+
+You can also make the moo louder with the `--loud` flag and add more o's with the `-n` flag.
+
+```bash
+$ ./target/debug/oxen moo --loud
+MOO!
+```
+
+```bash
+$ ./target/debug/oxen moo -n 10
+moooooooooo
+```
+
+🎉 And there you have it! 
+
+Congrats on adding your first command to Oxen! The moo command is already implemented in the main Oxen codebase as an easter egg and an example you can follow along with.
