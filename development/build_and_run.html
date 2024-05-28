@@ -179,11 +179,44 @@
 <pre><code>curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 </code></pre>
 <p>If you are a developer and want to learn more about adding code or the overall architecture <a href="docs/dev/AddLibraryCode.html">start here</a>. Otherwise a quick start to make sure everything is working follows.</p>
-<h2 id="build"><a class="header" href="#build">Build</a></h2>
-<p>Simply use <code>cargo</code> within the root directory to build. Cargo looks at <code>Cargo.toml</code> to figure out the dependencies and which binaries to build.</p>
-<pre><code>cargo build
+<h2 id="building-from-source"><a class="header" href="#building-from-source">Building from Source</a></h2>
+<p>To build the command line tool from source, you can follow these steps.</p>
+<ol>
+<li>
+<p>Install rustup via the instructions at https://rustup.rs/</p>
+</li>
+<li>
+<p>Clone the repository https://github.com/Oxen-AI/Oxen</p>
+<pre><code class="language-bash">git clone git@github.com:Oxen-AI/Oxen.git
 </code></pre>
-<p>Given all the dependencies, the first build can take quite awhile, feel free to go grab some coffee ☕️. Don't worry subsequent builds will be faster and we can speed up the linker later.</p>
+</li>
+<li>
+<p><code>cd</code> into the cloned repository</p>
+<pre><code class="language-bash">cd Oxen
+</code></pre>
+</li>
+<li>
+<p>Run this command (the release flag is recommended but not necessary):</p>
+<pre><code class="language-bash">cargo build --release
+</code></pre>
+</li>
+<li>
+<p>After the build has finished, the <code>oxen</code> binary will be in <code>Oxen/target/release</code> (or, if you did not use the --release flag, <code>Oxen/target/debug</code>).</p>
+<p>Now, to make it usable from a terminal window, you have the option to add it to create a symlink or to add it to your <code>PATH</code>.</p>
+</li>
+<li>
+<p>To add oxen to your <code>PATH</code>:</p>
+<p>Add this line to your <code>.bashrc</code> (or equivalent, e.g. <code>.zshrc</code>)</p>
+<pre><code class="language-bash">export PATH="$PATH:/path/to/Oxen/target/release"
+</code></pre>
+</li>
+<li>
+<p>Alternatively, to create a symlink, run the following command:</p>
+<pre><code class="language-bash">sudo ln -s /path/to/Oxen/target/release/oxen /usr/local/bin/oxen
+</code></pre>
+<p>Note that if you did not use the <code>--release</code> flag when building Oxen, you will have to change the path.</p>
+</li>
+</ol>
 <h2 id="library-cli-server"><a class="header" href="#library-cli-server">Library, CLI, Server</a></h2>
 <p>There are three components that are built during <code>cargo build</code> and they are separated into three directories within the <code>src</code> folder.</p>
 <pre><code class="language-bash">ls src
@@ -193,25 +226,8 @@ lib/
 server/
 </code></pre>
 <p>The library is all the shared code between the CLI and Server. This contains the majority of classes and business logic. The CLI and Server are meant to be thin wrappers over the core oxen library functionality.</p>
-<p>The library is also used for the Python client (TODO: Link) which should also remain a thin wrapper.</p>
-<h2 id="run"><a class="header" href="#run">Run</a></h2>
-<p>After the build has finished, the <code>oxen</code> binary will be in <code>Oxen/target/release</code> (or, if you did not use the --release flag, <code>Oxen/target/debug</code>).</p>
-<p>Now, to make it usable from a terminal window, you have the option to add it to create a symlink or to add it to your <code>PATH</code>.</p>
-<p>To add oxen to your <code>PATH</code>:</p>
-<p>Add this line to your <code>.bashrc</code> (or equivalent, e.g. <code>.zshrc</code>)</p>
-<pre><code class="language-bash">export PATH="$PATH:/path/to/Oxen/target/release"
-</code></pre>
-<p>Alternatively, to create a symlink, run the following command:</p>
-<pre><code class="language-bash">sudo ln -s /path/to/Oxen/target/release/oxen /usr/local/bin/oxen
-</code></pre>
-<p>If you did not use the <code>--release</code> flag when building Oxen, you will have to change the path.</p>
-<p>Note: If you have previously installed Oxen through homebrew or other methods make sure it is removed from your $PATH. To verify which <code>oxen</code> you are running simply test</p>
-<pre><code class="language-bash"># figure out where oxen is installed
-which oxen
-# to see if it is a development build or install via homebrew
-ls -al /path/to/oxen
-</code></pre>
-<h3 id="speed-up-the-build-process"><a class="header" href="#speed-up-the-build-process">Speed up the build process</a></h3>
+<p>The library is also used for the <a href="https://github.com/Oxen-AI/oxen-release">Python Client</a> which should also remain a thin wrapper.</p>
+<h2 id="speed-up-the-build-process"><a class="header" href="#speed-up-the-build-process">Speed up the build process</a></h2>
 <p>You can use
 the <a href="https://github.com/rui314/mold">mold</a> linker to speed up builds (The
 commercial Mac OS version is <a href="https://github.com/bluewhalesystems/sold">sold</a>).</p>
@@ -264,26 +280,6 @@ rustflags = [ "-C", "link-arg=-fuse-ld=/opt/homebrew/opt/llvm/bin/ld64.lld", ]
 </code></pre>
 <p>Then run the server like this</p>
 <pre><code>cargo watch -- cargo run --bin oxen-server start
-</code></pre>
-<h1 id="unit--integration-tests"><a class="header" href="#unit--integration-tests">Unit &amp; Integration Tests</a></h1>
-<p>Make sure your server is running on the default port and host, then run</p>
-<p><em>Note:</em> tests open up a lot of file handles, so limit num test threads if running everything.</p>
-<p>You an also increase the number of open files your system allows ulimit before running tests:</p>
-<pre><code>ulimit -n 10240
-</code></pre>
-<pre><code>cargo test -- --test-threads=$(nproc)
-</code></pre>
-<p>It can be faster (in terms of compilation and runtime) to run a specific test. To run a specific library test:</p>
-<pre><code>cargo test --lib test_get_metadata_text_readme
-</code></pre>
-<p>To run a specific integration test</p>
-<pre><code>cargo test --test test_rm test_rm_directory_restore_directory
-</code></pre>
-<p>To run with all debug output and run a specific test</p>
-<pre><code>env RUST_LOG=warn,liboxen=debug,integration_test=debug cargo test -- --nocapture test_command_push_clone_pull_push
-</code></pre>
-<p>To set a different test host you can set the <code>OXEN_TEST_HOST</code> environment variable</p>
-<pre><code>env OXEN_TEST_HOST=0.0.0.0:4000 cargo test
 </code></pre>
 <h1 id="cli-commands"><a class="header" href="#cli-commands">CLI Commands</a></h1>
 <p>Now feel free to try out some CLI commands and see the tool in action!</p>

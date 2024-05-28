@@ -224,7 +224,39 @@ mod tests {
 <pre><code class="language-bash">cargo test --lib command::init
 </code></pre>
 <p>This will run all the tests within the <code>command::init</code> module.</p>
-<h1 id="result-oxenerror"><a class="header" href="#result-oxenerror">Result&lt;(), OxenError&gt;</a></h1>
+<h1 id="returning-errors"><a class="header" href="#returning-errors">Returning Errors</a></h1>
+<p>You will notice that all the tests return <code>Result&lt;(), OxenError&gt;</code>. This means they will catch any errors that might occur when running different command.</p>
+<p>The <code>OxenError</code> is a custom error type that is defined in the <a href="https://github.com/Oxen-AI/Oxen/blob/main/src/lib/src/error.rs">lib/src/error.rs</a> file. It is a simple enum that represents an error that can occur in Oxen. When you unwrap <code>?</code> a function that returns a <code>Result&lt;(), OxenError&gt;</code> you will receive the error and the test will fail.</p>
+<h1 id="setup--teardown"><a class="header" href="#setup--teardown">Setup &amp; Teardown</a></h1>
+<p>Next you will see that most tests are wrapped in a closure defined in our <a href="https://github.com/Oxen-AI/Oxen/blob/main/src/lib/src/test.rs">test.rs</a> file.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>test::run_empty_dir_test(|repo_dir| {
+    // ... your test code here
+
+    Ok(())
+})
+<span class="boring">}</span></code></pre></pre>
+<p>These closures takes care of a lot of the boiler plate around setting up a test directory, and deleting it after the test is run.</p>
+<p>For example <code>run_empty_dir_test</code> will pass a unique directory to the closure, and delete it when finished. This way we can run all the isolated tests in parallel and not worry about leaking files from one test impacting another.</p>
+<p>There are many other helper functions you can use to setup and teardown your tests, including populating repositories with sample data, and setting up remote repositories. See the full list in the <a href="https://github.com/Oxen-AI/Oxen/blob/main/src/lib/src/test.rs">test.rs</a> file.</p>
+<h1 id="running-all-tests"><a class="header" href="#running-all-tests">Running All Tests</a></h1>
+<p>Make sure your server is running on the default port and host, then run</p>
+<p><em>Note:</em> tests open up a lot of file handles, so limit num test threads if running everything.</p>
+<p>You an also increase the number of open files your system allows ulimit before running tests:</p>
+<pre><code>ulimit -n 10240
+</code></pre>
+<pre><code>cargo test -- --test-threads=$(nproc)
+</code></pre>
+<p>It can be faster (in terms of compilation and runtime) to run a specific test. To run a specific library test:</p>
+<pre><code>cargo test --lib test_get_metadata_text_readme
+</code></pre>
+<p>To run with all debug output and run a specific test</p>
+<pre><code>env RUST_LOG=debug,liboxen=debug,integration_test=debug cargo test -- --nocapture test_command_push_clone_pull_push
+</code></pre>
+<p>To set a different test host you can set the <code>OXEN_TEST_HOST</code> environment variable</p>
+<pre><code>env OXEN_TEST_HOST=0.0.0.0:4000 cargo test
+</code></pre>
 
                     </main>
 

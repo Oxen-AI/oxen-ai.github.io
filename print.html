@@ -194,19 +194,19 @@
 <h1 id="where-to-start"><a class="header" href="#where-to-start">Where to start?</a></h1>
 <p>First you will want to <a href="./development/installation.html">install Oxen</a>. Once you have the tool up and running, we can dive into the implementation details. If you already have the tool up and running, feel free to skip directly to learning about <a href="./domains.html">domains</a> or <a href="./development/add_command.html">how to add a command</a>.</p>
 <p>Like any project, let's start by learning how to <a href="./development/build_and_run.html">build and run</a> the codebase.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="development"><a class="header" href="#development">Development</a></h1>
-<p>If you are interested in how to install Oxen, how to build from source, or how to release, this section is for you.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="-installation"><a class="header" href="#-installation">🛠️ Installation</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="-development"><a class="header" href="#-development">🛠️ Development</a></h1>
+<p>There are a few ways of getting up and running with Oxen. The most straightforward way is to install the latest pre-built version of Oxen from the <a href="https://github.com/Oxen-AI/Oxen">open source repository</a>.</p>
+<p>If you are actually going to be writing code, it is important to setup your development environment and start writing some code. This section has resources on how to install Oxen from source, how to build and run Oxen, add your first command, unit test, and how to release a new version of Oxen.</p>
+<ul>
+<li><a href="./development/installation.html">Installation</a></li>
+<li><a href="./development/build_and_run.html">Build &amp; Run</a></li>
+<li><a href="./development/add_command.html">Adding a Command</a></li>
+<li><a href="./development/testing.html">Testing</a></li>
+<li><a href="./development/release.html">Release</a></li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="-installation"><a class="header" href="#-installation">🧑‍💻 Installation</a></h1>
 <p>How to install the Oxen client, server, or python package. If you are a developer, you will want to <a href="development/installation.html#building-from-source">build from source</a>. If you are flying by and learning Oxen you can install the python package or the command line tool from the <a href="https://github.com/Oxen-AI/Oxen/releases">GitHub releases page</a>.</p>
-<h2 id="python-package"><a class="header" href="#python-package">Python Package</a></h2>
-<pre><code class="language-bash">$ pip install oxenai
-</code></pre>
-<p>Note that this will only install the Python library and not the command line tool.</p>
-<h3 id="installing-oxen-through-jupyter-notebooks-or-google-colab"><a class="header" href="#installing-oxen-through-jupyter-notebooks-or-google-colab">Installing Oxen through Jupyter Notebooks or Google Colab</a></h3>
-<p>Create and run this cell:</p>
-<pre><code class="language-python">!pip install oxenai
-</code></pre>
-<h2 id="command-line-tools"><a class="header" href="#command-line-tools">Command Line Tools</a></h2>
+<h2 id="-command-line-tools"><a class="header" href="#-command-line-tools">💻 Command Line Tools</a></h2>
 <p>The Oxen client can be installed via <a href="https://brew.sh/">homebrew</a> or by downloading the relevant binaries for Linux or Windows.</p>
 <p>You can find the source code for the client <a href="https://github.com/Oxen-AI/Oxen">here</a> and can also build for source for your platform. The continuous integration pipeline will build binaries for each release in <a href="https://github.com/Oxen-AI/Oxen">this repository</a>.</p>
 <h3 id="mac"><a class="header" href="#mac">Mac</a></h3>
@@ -230,7 +230,7 @@
 </code></pre>
 <h3 id="other-linux"><a class="header" href="#other-linux">Other Linux</a></h3>
 <p>Binaries are coming for other Linux distributions in the future. <a href="development/installation.html#building-from-source">In the meanwhile, you can build from source.</a></p>
-<h2 id="server-install"><a class="header" href="#server-install">Server Install</a></h2>
+<h2 id="-server-install"><a class="header" href="#-server-install">🌎 Server Install</a></h2>
 <p>The Oxen server binary can be deployed where ever you want to store and backup your data. It is an HTTP server that the client communicates with to enable collaboration.</p>
 <h3 id="mac-1"><a class="header" href="#mac-1">Mac</a></h3>
 <pre><code class="language-bash">brew tap Oxen-AI/oxen-server
@@ -258,6 +258,20 @@
 <pre><code class="language-bash">wget https://github.com/Oxen-AI/Oxen/releases/latest/download/oxen-server.exe
 </code></pre>
 <p>To get up and running using the client and server, you can follow the <a href="https://github.com/Oxen-AI/oxen-release">getting started docs</a>.</p>
+<h2 id="-python-package"><a class="header" href="#-python-package">🐍 Python Package</a></h2>
+<pre><code class="language-bash">$ pip install oxenai
+</code></pre>
+<p>Note that this will only install the Python library and not the command line tool.</p>
+<h3 id="installing-oxen-through-jupyter-notebooks-or-google-colab"><a class="header" href="#installing-oxen-through-jupyter-notebooks-or-google-colab">Installing Oxen through Jupyter Notebooks or Google Colab</a></h3>
+<p>Create and run this cell:</p>
+<pre><code class="language-python">!pip install oxenai
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="-build--run"><a class="header" href="#-build--run">🔨 Build &amp; Run</a></h1>
+<h2 id="install-dependencies"><a class="header" href="#install-dependencies">Install Dependencies</a></h2>
+<p>Oxen is purely written in Rust 🦀. You should install the Rust toolchain with rustup: https://www.rust-lang.org/tools/install.</p>
+<pre><code>curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+</code></pre>
+<p>If you are a developer and want to learn more about adding code or the overall architecture <a href="development/docs/dev/AddLibraryCode.html">start here</a>. Otherwise a quick start to make sure everything is working follows.</p>
 <h2 id="building-from-source"><a class="header" href="#building-from-source">Building from Source</a></h2>
 <p>To build the command line tool from source, you can follow these steps.</p>
 <ol>
@@ -296,17 +310,6 @@
 <p>Note that if you did not use the <code>--release</code> flag when building Oxen, you will have to change the path.</p>
 </li>
 </ol>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="-build--run"><a class="header" href="#-build--run">🔨 Build &amp; Run</a></h1>
-<h2 id="install-dependencies"><a class="header" href="#install-dependencies">Install Dependencies</a></h2>
-<p>Oxen is purely written in Rust 🦀. You should install the Rust toolchain with rustup: https://www.rust-lang.org/tools/install.</p>
-<pre><code>curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-</code></pre>
-<p>If you are a developer and want to learn more about adding code or the overall architecture <a href="development/docs/dev/AddLibraryCode.html">start here</a>. Otherwise a quick start to make sure everything is working follows.</p>
-<h2 id="build"><a class="header" href="#build">Build</a></h2>
-<p>Simply use <code>cargo</code> within the root directory to build. Cargo looks at <code>Cargo.toml</code> to figure out the dependencies and which binaries to build.</p>
-<pre><code>cargo build
-</code></pre>
-<p>Given all the dependencies, the first build can take quite awhile, feel free to go grab some coffee ☕️. Don't worry subsequent builds will be faster and we can speed up the linker later.</p>
 <h2 id="library-cli-server"><a class="header" href="#library-cli-server">Library, CLI, Server</a></h2>
 <p>There are three components that are built during <code>cargo build</code> and they are separated into three directories within the <code>src</code> folder.</p>
 <pre><code class="language-bash">ls src
@@ -316,25 +319,8 @@ lib/
 server/
 </code></pre>
 <p>The library is all the shared code between the CLI and Server. This contains the majority of classes and business logic. The CLI and Server are meant to be thin wrappers over the core oxen library functionality.</p>
-<p>The library is also used for the Python client (TODO: Link) which should also remain a thin wrapper.</p>
-<h2 id="run"><a class="header" href="#run">Run</a></h2>
-<p>After the build has finished, the <code>oxen</code> binary will be in <code>Oxen/target/release</code> (or, if you did not use the --release flag, <code>Oxen/target/debug</code>).</p>
-<p>Now, to make it usable from a terminal window, you have the option to add it to create a symlink or to add it to your <code>PATH</code>.</p>
-<p>To add oxen to your <code>PATH</code>:</p>
-<p>Add this line to your <code>.bashrc</code> (or equivalent, e.g. <code>.zshrc</code>)</p>
-<pre><code class="language-bash">export PATH="$PATH:/path/to/Oxen/target/release"
-</code></pre>
-<p>Alternatively, to create a symlink, run the following command:</p>
-<pre><code class="language-bash">sudo ln -s /path/to/Oxen/target/release/oxen /usr/local/bin/oxen
-</code></pre>
-<p>If you did not use the <code>--release</code> flag when building Oxen, you will have to change the path.</p>
-<p>Note: If you have previously installed Oxen through homebrew or other methods make sure it is removed from your $PATH. To verify which <code>oxen</code> you are running simply test</p>
-<pre><code class="language-bash"># figure out where oxen is installed
-which oxen
-# to see if it is a development build or install via homebrew
-ls -al /path/to/oxen
-</code></pre>
-<h3 id="speed-up-the-build-process"><a class="header" href="#speed-up-the-build-process">Speed up the build process</a></h3>
+<p>The library is also used for the <a href="https://github.com/Oxen-AI/oxen-release">Python Client</a> which should also remain a thin wrapper.</p>
+<h2 id="speed-up-the-build-process"><a class="header" href="#speed-up-the-build-process">Speed up the build process</a></h2>
 <p>You can use
 the <a href="https://github.com/rui314/mold">mold</a> linker to speed up builds (The
 commercial Mac OS version is <a href="https://github.com/bluewhalesystems/sold">sold</a>).</p>
@@ -387,26 +373,6 @@ rustflags = [ "-C", "link-arg=-fuse-ld=/opt/homebrew/opt/llvm/bin/ld64.lld", ]
 </code></pre>
 <p>Then run the server like this</p>
 <pre><code>cargo watch -- cargo run --bin oxen-server start
-</code></pre>
-<h1 id="unit--integration-tests"><a class="header" href="#unit--integration-tests">Unit &amp; Integration Tests</a></h1>
-<p>Make sure your server is running on the default port and host, then run</p>
-<p><em>Note:</em> tests open up a lot of file handles, so limit num test threads if running everything.</p>
-<p>You an also increase the number of open files your system allows ulimit before running tests:</p>
-<pre><code>ulimit -n 10240
-</code></pre>
-<pre><code>cargo test -- --test-threads=$(nproc)
-</code></pre>
-<p>It can be faster (in terms of compilation and runtime) to run a specific test. To run a specific library test:</p>
-<pre><code>cargo test --lib test_get_metadata_text_readme
-</code></pre>
-<p>To run a specific integration test</p>
-<pre><code>cargo test --test test_rm test_rm_directory_restore_directory
-</code></pre>
-<p>To run with all debug output and run a specific test</p>
-<pre><code>env RUST_LOG=warn,liboxen=debug,integration_test=debug cargo test -- --nocapture test_command_push_clone_pull_push
-</code></pre>
-<p>To set a different test host you can set the <code>OXEN_TEST_HOST</code> environment variable</p>
-<pre><code>env OXEN_TEST_HOST=0.0.0.0:4000 cargo test
 </code></pre>
 <h1 id="cli-commands"><a class="header" href="#cli-commands">CLI Commands</a></h1>
 <p>Now feel free to try out some CLI commands and see the tool in action!</p>
@@ -516,12 +482,41 @@ moooooooooo
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>let cmds: Vec&lt;Box&lt;dyn cmd::RunCmd&gt;&gt; = vec![
-        Box::new(cmd::AddCmd),
-        Box::new(cmd::MooCmd), // Your new command
-    ];
+    Box::new(cmd::AddCmd),
+    Box::new(cmd::MooCmd), // Your new command
+];
 
 // ... run commands
 <span class="boring">}</span></code></pre></pre>
+<p>This should be all you need to get Oxen to go "MOO!". Let's build and run.</p>
+<pre><code class="language-bash">cargo build
+./target/debug/oxen moo --help
+</code></pre>
+<p>You will see the help menu for your new command.</p>
+<pre><code class="language-bash">Hello, world! 🐂
+
+Usage: oxen moo [OPTIONS]
+
+Options:
+  -n, --number &lt;number&gt;  How long is the moo? [default: 2]
+  -l, --loud             Make the MOO louder.
+  -h, --help             Print help
+</code></pre>
+<p>Then you can simply run your command.</p>
+<pre><code class="language-bash">./target/debug/oxen moo
+</code></pre>
+<p>You should see the output "moo"</p>
+<pre><code>moo
+</code></pre>
+<p>You can also make the moo louder with the <code>--loud</code> flag and add more o's with the <code>-n</code> flag.</p>
+<pre><code class="language-bash">$ ./target/debug/oxen moo --loud
+MOO!
+</code></pre>
+<pre><code class="language-bash">$ ./target/debug/oxen moo -n 10
+moooooooooo
+</code></pre>
+<p>🎉 And there you have it!</p>
+<p>Congrats on adding your first command to Oxen! The moo command is already implemented in the main Oxen codebase as an easter egg and an example you can follow along with.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="testing"><a class="header" href="#testing">Testing</a></h1>
 <p>We are all smart software engineers, but when it comes to entering a new codebase we all want confidence that making a change doesn't have a cascading effect. It is important to make sure that turning off the (proverbial) lights in the kitchen 💡 doesn't make the roof collapse 🏠.</p>
 <p>Luckily each command within Oxen has a well defined interface, and each command can be tested independently.</p>
@@ -573,7 +568,39 @@ mod tests {
 <pre><code class="language-bash">cargo test --lib command::init
 </code></pre>
 <p>This will run all the tests within the <code>command::init</code> module.</p>
-<h1 id="result-oxenerror"><a class="header" href="#result-oxenerror">Result&lt;(), OxenError&gt;</a></h1>
+<h1 id="returning-errors"><a class="header" href="#returning-errors">Returning Errors</a></h1>
+<p>You will notice that all the tests return <code>Result&lt;(), OxenError&gt;</code>. This means they will catch any errors that might occur when running different command.</p>
+<p>The <code>OxenError</code> is a custom error type that is defined in the <a href="https://github.com/Oxen-AI/Oxen/blob/main/src/lib/src/error.rs">lib/src/error.rs</a> file. It is a simple enum that represents an error that can occur in Oxen. When you unwrap <code>?</code> a function that returns a <code>Result&lt;(), OxenError&gt;</code> you will receive the error and the test will fail.</p>
+<h1 id="setup--teardown"><a class="header" href="#setup--teardown">Setup &amp; Teardown</a></h1>
+<p>Next you will see that most tests are wrapped in a closure defined in our <a href="https://github.com/Oxen-AI/Oxen/blob/main/src/lib/src/test.rs">test.rs</a> file.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>test::run_empty_dir_test(|repo_dir| {
+    // ... your test code here
+
+    Ok(())
+})
+<span class="boring">}</span></code></pre></pre>
+<p>These closures takes care of a lot of the boiler plate around setting up a test directory, and deleting it after the test is run.</p>
+<p>For example <code>run_empty_dir_test</code> will pass a unique directory to the closure, and delete it when finished. This way we can run all the isolated tests in parallel and not worry about leaking files from one test impacting another.</p>
+<p>There are many other helper functions you can use to setup and teardown your tests, including populating repositories with sample data, and setting up remote repositories. See the full list in the <a href="https://github.com/Oxen-AI/Oxen/blob/main/src/lib/src/test.rs">test.rs</a> file.</p>
+<h1 id="running-all-tests"><a class="header" href="#running-all-tests">Running All Tests</a></h1>
+<p>Make sure your server is running on the default port and host, then run</p>
+<p><em>Note:</em> tests open up a lot of file handles, so limit num test threads if running everything.</p>
+<p>You an also increase the number of open files your system allows ulimit before running tests:</p>
+<pre><code>ulimit -n 10240
+</code></pre>
+<pre><code>cargo test -- --test-threads=$(nproc)
+</code></pre>
+<p>It can be faster (in terms of compilation and runtime) to run a specific test. To run a specific library test:</p>
+<pre><code>cargo test --lib test_get_metadata_text_readme
+</code></pre>
+<p>To run with all debug output and run a specific test</p>
+<pre><code>env RUST_LOG=debug,liboxen=debug,integration_test=debug cargo test -- --nocapture test_command_push_clone_pull_push
+</code></pre>
+<p>To set a different test host you can set the <code>OXEN_TEST_HOST</code> environment variable</p>
+<pre><code>env OXEN_TEST_HOST=0.0.0.0:4000 cargo test
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><p>TODO: Write this chapter</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="domain-objects"><a class="header" href="#domain-objects">Domain Objects</a></h1>
 <p>In order to fully grok the Oxen codebase, it's important to define a few terms and understand the different <a href="domains.html">domain objects</a>. This way you'll have the right terminology to build upon and know where to look when adding or debugging features.</p>
