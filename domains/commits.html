@@ -258,8 +258,8 @@ where
 <span class="boring">}</span></code></pre></pre>
 <p>What's nice about this is that once the data has been synced to the remote server, we can verify that the data is valid by computing the hashes of the files and the commit data and comparing this to the id of the commit in the database.</p>
 <h1 id="-commit-merkle-tree"><a class="header" href="#-commit-merkle-tree">🌲 Commit Merkle Tree</a></h1>
-<p>TODO: Talk about merkle tree. Maybe in different section</p>
-<p>As you can see, each commit has a list of parent commit ids. This is used to create a <a href="https://en.wikipedia.org/wiki/Commit_tree">commit tree</a>. The root commit will have no parent commits.</p>
+<p>TODO: Talk about merkle tree.</p>
+<p>As you can see, each commit has a list of parent commit ids. This is used to create a <a href="https://en.wikipedia.org/wiki/Merkle_tree">merkle tree</a>. The root commit will have no parent commits.</p>
 <p>Our first couple of examples will have a linear commit tree with one parent per commit. This is the most common case when getting started. But as you will see later with merge commits, commits can have multiple parent commits when combining work from multiple branches.</p>
 
                     </main>

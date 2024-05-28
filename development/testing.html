@@ -173,7 +173,59 @@
 
                 <div id="content" class="content">
                     <main>
-                        
+                        <h1 id="testing"><a class="header" href="#testing">Testing</a></h1>
+<p>We are all smart software engineers, but when it comes to entering a new codebase we all want confidence that making a change doesn't have a cascading effect. It is important to make sure that turning off the (proverbial) lights in the kitchen 💡 doesn't make the roof collapse 🏠.</p>
+<p>Luckily each command within Oxen has a well defined interface, and each command can be tested independently.</p>
+<p>For example:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Initialize Repo
+let repo = command::init("./test_repo")?;
+// Add File
+command::add(&amp;repo, &amp;"hello.txt")?;
+// Commit File
+command::commit(&amp;repo, &amp;"add hello.txt")?;
+<span class="boring">}</span></code></pre></pre>
+<p>We chain these commands together into a sequence of integration and unit tests to make sure the end to end system works as expected.</p>
+<h1 id="writing-tests"><a class="header" href="#writing-tests">Writing Tests</a></h1>
+<p>The best place to reference when looking at tests within Oxen are the <code>lib/src/command</code> modules themselves. You'll find some familiar names within the <code>command::</code> namespace.</p>
+<p>For example:</p>
+<ul>
+<li><a href="https://github.com/Oxen-AI/Oxen/blob/main/src/lib/src/command/init.rs">command::init</a></li>
+<li><a href="https://github.com/Oxen-AI/Oxen/blob/main/src/lib/src/command/add.rs">command::add</a></li>
+<li><a href="https://github.com/Oxen-AI/Oxen/blob/main/src/lib/src/command/commit.rs">command::commit</a></li>
+</ul>
+<p>All tests for these commands are found below their respective module. Let's look at an example command and break down the different parts of the test.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[cfg(test)]
+mod tests {
+    // ... include necessary modules
+
+    #[test]
+    fn test_command_init() -&gt; Result&lt;(), OxenError&gt; {
+        test::run_empty_dir_test(|repo_dir| {
+            // Init repo
+            let repo = command::init(repo_dir)?;
+
+            // Init should create the .oxen directory
+            let hidden_dir = util::fs::oxen_hidden_dir(repo_dir);
+            let config_file = util::fs::config_filepath(repo_dir);
+            assert!(hidden_dir.exists());
+            assert!(config_file.exists());
+
+            Ok(())
+        })
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+<p>First you will notice that the tests are within a <code>mod tests</code> block. This is a Rust feature that allows you to group tests together within a particular module.</p>
+<p>In order to run all the tests within a particular command module you can run:</p>
+<pre><code class="language-bash">cargo test --lib command::init
+</code></pre>
+<p>This will run all the tests within the <code>command::init</code> module.</p>
+<h1 id="result-oxenerror"><a class="header" href="#result-oxenerror">Result&lt;(), OxenError&gt;</a></h1>
+
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">

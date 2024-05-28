@@ -192,8 +192,8 @@
 <h1 id="why-the-name-oxen"><a class="header" href="#why-the-name-oxen">Why the name Oxen?</a></h1>
 <p>"Oxen" 🐂 comes from the fact that the tooling will plow, maintain, and version your data like a good farmer tends to their fields 🌾. During the agricultural revolution the Ox allowed humans to automate the process of plowing fields so they could specialize in higher level tasks. Data is the lifeblood of ML/AI. Let Oxen take care of the grunt work of your infrastructure so you can focus on the higher-level problems that matter to your product.</p>
 <h1 id="where-to-start"><a class="header" href="#where-to-start">Where to start?</a></h1>
-<p>First you will want to <a href="./development/installation.html">install Oxen</a>. Once you have the tool up and running, we can dive into the implementation details.</p>
-<p>In order to fully grok the Oxen codebase, it's important to define a few terms and understand the different <a href="domains.html">domain objects</a>. This way you'll have the right terminology to build upon and know where to look when adding or debugging features. Let's start by learning about <a href="./domains/repository.html">repositories</a>.</p>
+<p>First you will want to <a href="./development/installation.html">install Oxen</a>. Once you have the tool up and running, we can dive into the implementation details. If you already have the tool up and running, feel free to skip directly to learning about <a href="./domains.html">domains</a> or <a href="./development/add_command.html">how to add a command</a>.</p>
+<p>Like any project, let's start by learning how to <a href="./development/build_and_run.html">build and run</a> the codebase.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="development"><a class="header" href="#development">Development</a></h1>
 <p>If you are interested in how to install Oxen, how to build from source, or how to release, this section is for you.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="-installation"><a class="header" href="#-installation">🛠️ Installation</a></h1>
@@ -522,8 +522,62 @@ moooooooooo
 
 // ... run commands
 <span class="boring">}</span></code></pre></pre>
-<div style="break-before: page; page-break-before: always;"></div><div style="break-before: page; page-break-before: always;"></div><div style="break-before: page; page-break-before: always;"></div><h1 id="domain-objects"><a class="header" href="#domain-objects">Domain Objects</a></h1>
-<p>Learning about the different domain objects is a good place to start. These domains are defined so we are all speaking the same language while diving into the code base. Starting from what the objects are, why they exist, and how objects are stored on disk, we will build up intuition of how the system works as a whole.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="testing"><a class="header" href="#testing">Testing</a></h1>
+<p>We are all smart software engineers, but when it comes to entering a new codebase we all want confidence that making a change doesn't have a cascading effect. It is important to make sure that turning off the (proverbial) lights in the kitchen 💡 doesn't make the roof collapse 🏠.</p>
+<p>Luckily each command within Oxen has a well defined interface, and each command can be tested independently.</p>
+<p>For example:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Initialize Repo
+let repo = command::init("./test_repo")?;
+// Add File
+command::add(&amp;repo, &amp;"hello.txt")?;
+// Commit File
+command::commit(&amp;repo, &amp;"add hello.txt")?;
+<span class="boring">}</span></code></pre></pre>
+<p>We chain these commands together into a sequence of integration and unit tests to make sure the end to end system works as expected.</p>
+<h1 id="writing-tests"><a class="header" href="#writing-tests">Writing Tests</a></h1>
+<p>The best place to reference when looking at tests within Oxen are the <code>lib/src/command</code> modules themselves. You'll find some familiar names within the <code>command::</code> namespace.</p>
+<p>For example:</p>
+<ul>
+<li><a href="https://github.com/Oxen-AI/Oxen/blob/main/src/lib/src/command/init.rs">command::init</a></li>
+<li><a href="https://github.com/Oxen-AI/Oxen/blob/main/src/lib/src/command/add.rs">command::add</a></li>
+<li><a href="https://github.com/Oxen-AI/Oxen/blob/main/src/lib/src/command/commit.rs">command::commit</a></li>
+</ul>
+<p>All tests for these commands are found below their respective module. Let's look at an example command and break down the different parts of the test.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[cfg(test)]
+mod tests {
+    // ... include necessary modules
+
+    #[test]
+    fn test_command_init() -&gt; Result&lt;(), OxenError&gt; {
+        test::run_empty_dir_test(|repo_dir| {
+            // Init repo
+            let repo = command::init(repo_dir)?;
+
+            // Init should create the .oxen directory
+            let hidden_dir = util::fs::oxen_hidden_dir(repo_dir);
+            let config_file = util::fs::config_filepath(repo_dir);
+            assert!(hidden_dir.exists());
+            assert!(config_file.exists());
+
+            Ok(())
+        })
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+<p>First you will notice that the tests are within a <code>mod tests</code> block. This is a Rust feature that allows you to group tests together within a particular module.</p>
+<p>In order to run all the tests within a particular command module you can run:</p>
+<pre><code class="language-bash">cargo test --lib command::init
+</code></pre>
+<p>This will run all the tests within the <code>command::init</code> module.</p>
+<h1 id="result-oxenerror"><a class="header" href="#result-oxenerror">Result&lt;(), OxenError&gt;</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><p>TODO: Write this chapter</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="domain-objects"><a class="header" href="#domain-objects">Domain Objects</a></h1>
+<p>In order to fully grok the Oxen codebase, it's important to define a few terms and understand the different <a href="domains.html">domain objects</a>. This way you'll have the right terminology to build upon and know where to look when adding or debugging features.</p>
+<p>These domains are defined so we are all speaking the same language while diving into the code base. We will start with what the objects are, why they exist, and how objects are stored on disk, then we will build up intuition of how the system works as a whole.</p>
 <h1 id="file-structure"><a class="header" href="#file-structure">File Structure</a></h1>
 <p>Similar to <code>git</code>, we store all the meta data for a repository in a hidden local <code>.oxen</code> directory. To start the learning journey let's initialize and empty Oxen repository locally by using <a href="./commands/init.html">oxen init</a>.</p>
 <pre><code class="language-bash">mkdir my-repo
@@ -787,8 +841,8 @@ where
 <span class="boring">}</span></code></pre></pre>
 <p>What's nice about this is that once the data has been synced to the remote server, we can verify that the data is valid by computing the hashes of the files and the commit data and comparing this to the id of the commit in the database.</p>
 <h1 id="-commit-merkle-tree"><a class="header" href="#-commit-merkle-tree">🌲 Commit Merkle Tree</a></h1>
-<p>TODO: Talk about merkle tree. Maybe in different section</p>
-<p>As you can see, each commit has a list of parent commit ids. This is used to create a <a href="https://en.wikipedia.org/wiki/Commit_tree">commit tree</a>. The root commit will have no parent commits.</p>
+<p>TODO: Talk about merkle tree.</p>
+<p>As you can see, each commit has a list of parent commit ids. This is used to create a <a href="https://en.wikipedia.org/wiki/Merkle_tree">merkle tree</a>. The root commit will have no parent commits.</p>
 <p>Our first couple of examples will have a linear commit tree with one parent per commit. This is the most common case when getting started. But as you will see later with merge commits, commits can have multiple parent commits when combining work from multiple branches.</p>
 <div style="break-before: page; page-break-before: always;"></div><div style="break-before: page; page-break-before: always;"></div><div style="break-before: page; page-break-before: always;"></div><div style="break-before: page; page-break-before: always;"></div><div style="break-before: page; page-break-before: always;"></div><h1 id="commands"><a class="header" href="#commands">Commands</a></h1>
 <p>The core commands in commands in Oxen map to git so that it is an easy learning curve to get started.</p>
