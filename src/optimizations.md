@@ -14,6 +14,7 @@ Without diving into the gnitty gritty details, here are some highlights. If you 
 * Per Folder Sub Trees
 * Block Level Dedup
 * Only download latest
+    * When you get to TB scale data, you do not want to have to pull down data from previous commits to compute the current tree.
 * Push / Pull Bottle Neck
 * Objects
     * Trees
@@ -27,10 +28,19 @@ Without diving into the gnitty gritty details, here are some highlights. If you 
 * pure hashing throughput
 * non-cryptographic hashing fn
 
-## Compression (Coming Soon)
+## Data Frames and Schemas are First Class Citizens
 
-* Block level dedup
-* zlib
+Other VCS systems are optimized for text files and code. In the case of datasets, we often deal with data frames which have other properties such as schema that we want to track.
+
+## Native File Formats
+
+Take advantage of existing file formats such as arrow, parquet, duckdb, etc. Unlike git or other VCS that try to be smart with compression, we can leverage the existing file formats that are already highly optimized for the specific use case.
+
+For example, apache arrow is a memory mapped file that makes random access to rows very fast. If we were to compress this data and reconstruct it we would lose the benefits of the memory mapped file.
+
+This is a design tradeoff that is made throughout oxen which makes it less efficient in terms of storage on disk, but easier to integrate with. 
+
+Visibility into data is a key design goal of Oxen. Visibility means speed for data to be visible as well, and the less assumptions we make here, the more we can leverage and extend existing file formats.
 
 ## Concurrency
 
@@ -51,3 +61,8 @@ Don't download the entire dataset just to contribute.
 * oxen remote commit
 * oxen remote df
 * oxen remote ls
+
+## Compression (Coming Soon)
+
+* Block level dedup
+* zlib

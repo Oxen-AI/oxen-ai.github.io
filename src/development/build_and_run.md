@@ -40,18 +40,32 @@ The library is also used for the Python client (TODO: Link) which should also re
 
 ## Run
 
-While developing, the debug binary will be located at `./target/debug/oxen`. It is nice to make a symbolic link to your development build to your `/usr/local/bin` so that you can call the `oxen` binary from anywhere.
+After the build has finished, the `oxen` binary will be in `Oxen/target/release` (or, if you did not use the --release flag, `Oxen/target/debug`).
+
+Now, to make it usable from a terminal window, you have the option to add it to create a symlink or to add it to your `PATH`.
+
+To add oxen to your `PATH`:
+
+Add this line to your `.bashrc` (or equivalent, e.g. `.zshrc`)
 
 ```bash
-ln -s target/debug/oxen /usr/local/bin/oxen
+export PATH="$PATH:/path/to/Oxen/target/release"
 ```
+
+Alternatively, to create a symlink, run the following command:
+
+```bash
+sudo ln -s /path/to/Oxen/target/release/oxen /usr/local/bin/oxen
+```
+
+If you did not use the `--release` flag when building Oxen, you will have to change the path.
 
 Note: If you have previously installed Oxen through homebrew or other methods make sure it is removed from your $PATH. To verify which `oxen` you are running simply test
 
 ```bash
 # figure out where oxen is installed
 which oxen
-# to see if it is a symbolic link
+# to see if it is a development build or install via homebrew
 ls -al /path/to/oxen
 ```
 

@@ -22,6 +22,8 @@ Data versions should be easy to interact with locally, fast to sync to a remote,
 
 When it comes to open source contribution and scaling up a software project this is true as well. This book is for developers to get an understanding of the internals, design decisions, and places for improvement in the Oxen.ai code base. Open source is meant to not only be open, but understandable. This is an evolving artifact meant to document the tool and codebase.
 
+The concepts listed in this book are not perfect, but are meant to be a guide posts for the current implementation. Along the way we will point out areas for improvement. If you get to a section and think "Why do we do this? The HAS to be a better way." you are probably right! Check out [improvements](./improvements.md) for some ideas we already have, and feel free to add your own.
+
 # Why is Oxen fast?
 
 This is always one of the first questions we get. The simple answer is that there are many [optimizations](./optimizations.md) that make Oxen fast. Many are just fundamental computer science concepts but when stacked together make a nice developer experience for iterating on datasets.

@@ -44,3 +44,4 @@
     - [Networking](./optimizations/networking.md)
     - [Remote Workspace](./optimizations/remote_workspace.md)
     - [Storage](./optimizations/storage.md)
+    - [Why not extend Git?](./optimizations/why_not_git.md)
