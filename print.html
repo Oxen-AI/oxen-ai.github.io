@@ -601,11 +601,45 @@ mod tests {
 <p>To set a different test host you can set the <code>OXEN_TEST_HOST</code> environment variable</p>
 <pre><code>env OXEN_TEST_HOST=0.0.0.0:4000 cargo test
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><p>TODO: Write this chapter</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="-releasing-oxen-into-the-wild-"><a class="header" href="#-releasing-oxen-into-the-wild-">🐂 Releasing Oxen Into The Wild 🌾</a></h1>
+<p>Right now this is mainly for <a href="https://www.linkedin.com/in/greg-schoeninger/">me</a> to document how I release new versions of the open source Oxen.ai binaries.</p>
+<p>If anyone wants to help with the release process, please let me know!</p>
+<h2 id="bump-cliserver-versions"><a class="header" href="#bump-cliserver-versions">Bump CLI/Server Versions</a></h2>
+<p>For the CLI and Oxen-Server binaries, make sure to update in all Cargo.toml files in our <a href="https://github.com/Oxen-AI/Oxen">Oxen-AI/Oxen</a> repo.</p>
+<ul>
+<li><a href="https://github.com/Oxen-AI/Oxen/blob/main/Cargo.toml">Cargo.toml</a></li>
+<li><a href="https://github.com/Oxen-AI/Oxen/blob/main/src/server/Cargo.toml">src/server/Cargo.toml</a></li>
+<li><a href="https://github.com/Oxen-AI/Oxen/blob/main/src/cli/Cargo.toml">src/cli/Cargo.toml</a></li>
+</ul>
+<h2 id="create-tag"><a class="header" href="#create-tag">Create Tag</a></h2>
+<p>We use git tags to kick off CI within GitHub actions.</p>
+<p><code>git tag -a v$VERSION -m "version $VERSION"</code></p>
+<h2 id="push-tag"><a class="header" href="#push-tag">Push Tag</a></h2>
+<p>Builds will show up in this repositories <a href="https://github.com/Oxen-AI/Oxen/releases">releases</a> with the tag you just specified.</p>
+<p><code>git push origin v$VERSION</code></p>
+<h2 id="update-homebrew-install"><a class="header" href="#update-homebrew-install">Update Homebrew Install</a></h2>
+<p>There are separate homebrew repositories for the <code>oxen</code> CLI and the <code>oxen-server</code> binary.</p>
+<p><a href="https://github.com/Oxen-AI/homebrew-oxen">Oxen-AI/homebrew-oxen</a></p>
+<p><a href="https://github.com/Oxen-AI/homebrew-oxen-server">Oxen-AI/homebrew-oxen-server</a></p>
+<p>You will need to compute shasum(s) of each release and update the <code>Formula/*.rb</code> in both repos above.</p>
+<p>Use the <a href="https://github.com/Oxen-AI/homebrew-oxen/blob/main/compute_hashes.sh">compute_hashes.sh</a> script in <a href="https://github.com/Oxen-AI/homebrew-oxen">homebrew-oxen</a> repo to compute the shasum(s) of each release.</p>
+<p>To verify the formula(s) locally:</p>
+<pre><code>cd /path/to/homebrew-oxen-server
+brew install Formula/oxen.rb
+oxen --version
+</code></pre>
+<pre><code>cd /path/to/homebrew-oxen-server
+brew install Formula/oxen-server.rb
+oxen-server --version
+</code></pre>
+<h2 id="update-release-notes"><a class="header" href="#update-release-notes">Update Release Notes</a></h2>
+<p>TODO: We need to get better at this.</p>
+<p>Suggestions welcome 🙏.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="domain-objects"><a class="header" href="#domain-objects">Domain Objects</a></h1>
+<p>Now for the fun part! Hopefully you have already <a href="./development/build_and_run.html">built Oxen</a> and learned how to <a href="./development/add_command.html">add your first command</a>.</p>
 <p>In order to fully grok the Oxen codebase, it's important to define a few terms and understand the different <a href="domains.html">domain objects</a>. This way you'll have the right terminology to build upon and know where to look when adding or debugging features.</p>
 <p>These domains are defined so we are all speaking the same language while diving into the code base. We will start with what the objects are, why they exist, and how objects are stored on disk, then we will build up intuition of how the system works as a whole.</p>
-<h1 id="file-structure"><a class="header" href="#file-structure">File Structure</a></h1>
+<h1 id="oxen-init"><a class="header" href="#oxen-init">oxen init</a></h1>
 <p>Similar to <code>git</code>, we store all the meta data for a repository in a hidden local <code>.oxen</code> directory. To start the learning journey let's initialize and empty Oxen repository locally by using <a href="./commands/init.html">oxen init</a>.</p>
 <pre><code class="language-bash">mkdir my-repo
 cd my-repo
@@ -666,14 +700,17 @@ $ oxen commit -m "Add hello.txt and world.txt"
 hash	size	data_type	mime_type	extension	last_updated_commit_id
 18066113d946cfa640ffc8773c83f61b	6	text	text/plain	txt	2c610ae8e424a4c8
 </code></pre>
-<p><code>oxen info</code> prints out a tab separated list of the hash, size, data type, mime type, extension, and the last updated commit id of the file. The hash in this case is <code>18066113d946cfa640ffc8773c83f61b</code>. As for the directory structure above, you can see we split the hash and use the first two characters (<code>18</code>) of the hash as a prefix to the directory name. This is a common pattern in content addressable file systems to make sure you do not have too many files in a single sub-directory.</p>
+<p><code>oxen info</code> prints out a tab separated list of the hash, size, data type, mime type, extension, and the last updated commit id of the file.</p>
+<p>In this case, the hash for the <code>world.txt</code> file is <code>18066113d946cfa640ffc8773c83f61b</code>. As for the directory structure above, you can see we split the hash and use the first two characters (<code>18</code>) of the hash as a prefix to the directory name. This is a common pattern in content addressable file systems to make sure you do not have too many sub-directories in a single directory.</p>
 <h1 id="manually-inspect-older-versions"><a class="header" href="#manually-inspect-older-versions">Manually Inspect Older Versions</a></h1>
 <p>Currently the files in Oxen are uncompressed in the versions directory, so you can simply <code>cat</code> the file to see the contents.</p>
 <pre><code class="language-bash">$ cat .oxen/versions/files/a7/666c8f5aaf946ca629d9d20c29aa6a/data.txt
 
 Hello
 </code></pre>
-<p>Note: We have compression in our list of <a href="domains/improvements.html">future improvements</a> that could be made to the system.</p>
+<blockquote>
+<p>Note: We have compression in our list of <a href="domains/improvements.html">future improvements</a> that could be made to the system, but the fact that we keep them uncompressed is a nice property of the system. It allows us to take advantage of the native file format of the files on disk with out additional compression / decompression steps.</p>
+</blockquote>
 <h2 id="storing-new-versions"><a class="header" href="#storing-new-versions">Storing New Versions</a></h2>
 <p>Let's change the <code>hello.txt</code> file and commit it again.</p>
 <pre><code class="language-bash">$ echo "Hello, World!" &gt; hello.txt
@@ -882,6 +919,7 @@ oxen push origin main
 <p>Join us as we break down each command step by step, as if you were building it from scratch.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="init"><a class="header" href="#init">init</a></h1>
 <p><code>oxen init</code></p>
+<p>TODO: add details on how the command works</p>
 <div style="break-before: page; page-break-before: always;"></div><div style="break-before: page; page-break-before: always;"></div><div style="break-before: page; page-break-before: always;"></div><div style="break-before: page; page-break-before: always;"></div><div style="break-before: page; page-break-before: always;"></div><div style="break-before: page; page-break-before: always;"></div><div style="break-before: page; page-break-before: always;"></div><h1 id="clone"><a class="header" href="#clone">clone</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><div style="break-before: page; page-break-before: always;"></div><h1 id="data-types"><a class="header" href="#data-types">Data Types</a></h1>
 <p>There are core data types that Oxen detects and can do special processing with. This helps increase visibility into your data, and makes it extensible to your use case.</p>

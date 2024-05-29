@@ -214,14 +214,17 @@ $ oxen commit -m "Add hello.txt and world.txt"
 hash	size	data_type	mime_type	extension	last_updated_commit_id
 18066113d946cfa640ffc8773c83f61b	6	text	text/plain	txt	2c610ae8e424a4c8
 </code></pre>
-<p><code>oxen info</code> prints out a tab separated list of the hash, size, data type, mime type, extension, and the last updated commit id of the file. The hash in this case is <code>18066113d946cfa640ffc8773c83f61b</code>. As for the directory structure above, you can see we split the hash and use the first two characters (<code>18</code>) of the hash as a prefix to the directory name. This is a common pattern in content addressable file systems to make sure you do not have too many files in a single sub-directory.</p>
+<p><code>oxen info</code> prints out a tab separated list of the hash, size, data type, mime type, extension, and the last updated commit id of the file.</p>
+<p>In this case, the hash for the <code>world.txt</code> file is <code>18066113d946cfa640ffc8773c83f61b</code>. As for the directory structure above, you can see we split the hash and use the first two characters (<code>18</code>) of the hash as a prefix to the directory name. This is a common pattern in content addressable file systems to make sure you do not have too many sub-directories in a single directory.</p>
 <h1 id="manually-inspect-older-versions"><a class="header" href="#manually-inspect-older-versions">Manually Inspect Older Versions</a></h1>
 <p>Currently the files in Oxen are uncompressed in the versions directory, so you can simply <code>cat</code> the file to see the contents.</p>
 <pre><code class="language-bash">$ cat .oxen/versions/files/a7/666c8f5aaf946ca629d9d20c29aa6a/data.txt
 
 Hello
 </code></pre>
-<p>Note: We have compression in our list of <a href="improvements.html">future improvements</a> that could be made to the system.</p>
+<blockquote>
+<p>Note: We have compression in our list of <a href="improvements.html">future improvements</a> that could be made to the system, but the fact that we keep them uncompressed is a nice property of the system. It allows us to take advantage of the native file format of the files on disk with out additional compression / decompression steps.</p>
+</blockquote>
 <h2 id="storing-new-versions"><a class="header" href="#storing-new-versions">Storing New Versions</a></h2>
 <p>Let's change the <code>hello.txt</code> file and commit it again.</p>
 <pre><code class="language-bash">$ echo "Hello, World!" &gt; hello.txt

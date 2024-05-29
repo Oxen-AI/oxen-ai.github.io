@@ -173,7 +173,40 @@
 
                 <div id="content" class="content">
                     <main>
-                        <p>TODO: Write this chapter</p>
+                        <h1 id="-releasing-oxen-into-the-wild-"><a class="header" href="#-releasing-oxen-into-the-wild-">🐂 Releasing Oxen Into The Wild 🌾</a></h1>
+<p>Right now this is mainly for <a href="https://www.linkedin.com/in/greg-schoeninger/">me</a> to document how I release new versions of the open source Oxen.ai binaries.</p>
+<p>If anyone wants to help with the release process, please let me know!</p>
+<h2 id="bump-cliserver-versions"><a class="header" href="#bump-cliserver-versions">Bump CLI/Server Versions</a></h2>
+<p>For the CLI and Oxen-Server binaries, make sure to update in all Cargo.toml files in our <a href="https://github.com/Oxen-AI/Oxen">Oxen-AI/Oxen</a> repo.</p>
+<ul>
+<li><a href="https://github.com/Oxen-AI/Oxen/blob/main/Cargo.toml">Cargo.toml</a></li>
+<li><a href="https://github.com/Oxen-AI/Oxen/blob/main/src/server/Cargo.toml">src/server/Cargo.toml</a></li>
+<li><a href="https://github.com/Oxen-AI/Oxen/blob/main/src/cli/Cargo.toml">src/cli/Cargo.toml</a></li>
+</ul>
+<h2 id="create-tag"><a class="header" href="#create-tag">Create Tag</a></h2>
+<p>We use git tags to kick off CI within GitHub actions.</p>
+<p><code>git tag -a v$VERSION -m "version $VERSION"</code></p>
+<h2 id="push-tag"><a class="header" href="#push-tag">Push Tag</a></h2>
+<p>Builds will show up in this repositories <a href="https://github.com/Oxen-AI/Oxen/releases">releases</a> with the tag you just specified.</p>
+<p><code>git push origin v$VERSION</code></p>
+<h2 id="update-homebrew-install"><a class="header" href="#update-homebrew-install">Update Homebrew Install</a></h2>
+<p>There are separate homebrew repositories for the <code>oxen</code> CLI and the <code>oxen-server</code> binary.</p>
+<p><a href="https://github.com/Oxen-AI/homebrew-oxen">Oxen-AI/homebrew-oxen</a></p>
+<p><a href="https://github.com/Oxen-AI/homebrew-oxen-server">Oxen-AI/homebrew-oxen-server</a></p>
+<p>You will need to compute shasum(s) of each release and update the <code>Formula/*.rb</code> in both repos above.</p>
+<p>Use the <a href="https://github.com/Oxen-AI/homebrew-oxen/blob/main/compute_hashes.sh">compute_hashes.sh</a> script in <a href="https://github.com/Oxen-AI/homebrew-oxen">homebrew-oxen</a> repo to compute the shasum(s) of each release.</p>
+<p>To verify the formula(s) locally:</p>
+<pre><code>cd /path/to/homebrew-oxen-server
+brew install Formula/oxen.rb
+oxen --version
+</code></pre>
+<pre><code>cd /path/to/homebrew-oxen-server
+brew install Formula/oxen-server.rb
+oxen-server --version
+</code></pre>
+<h2 id="update-release-notes"><a class="header" href="#update-release-notes">Update Release Notes</a></h2>
+<p>TODO: We need to get better at this.</p>
+<p>Suggestions welcome 🙏.</p>
 
                     </main>
 
