@@ -59,7 +59,9 @@ hash	size	data_type	mime_type	extension	last_updated_commit_id
 18066113d946cfa640ffc8773c83f61b	6	text	text/plain	txt	2c610ae8e424a4c8
 ```
 
-`oxen info` prints out a tab separated list of the hash, size, data type, mime type, extension, and the last updated commit id of the file. The hash in this case is `18066113d946cfa640ffc8773c83f61b`. As for the directory structure above, you can see we split the hash and use the first two characters (`18`) of the hash as a prefix to the directory name. This is a common pattern in content addressable file systems to make sure you do not have too many files in a single sub-directory.
+`oxen info` prints out a tab separated list of the hash, size, data type, mime type, extension, and the last updated commit id of the file. 
+
+In this case, the hash for the `world.txt` file is `18066113d946cfa640ffc8773c83f61b`. As for the directory structure above, you can see we split the hash and use the first two characters (`18`) of the hash as a prefix to the directory name. This is a common pattern in content addressable file systems to make sure you do not have too many sub-directories in a single directory.
 
 # Manually Inspect Older Versions
 
@@ -71,7 +73,7 @@ $ cat .oxen/versions/files/a7/666c8f5aaf946ca629d9d20c29aa6a/data.txt
 Hello
 ```
 
-Note: We have compression in our list of [future improvements](improvements.md) that could be made to the system.
+> Note: We have compression in our list of [future improvements](improvements.md) that could be made to the system, but the fact that we keep them uncompressed is a nice property of the system. It allows us to take advantage of the native file format of the files on disk with out additional compression / decompression steps.
 
 ## Storing New Versions
 

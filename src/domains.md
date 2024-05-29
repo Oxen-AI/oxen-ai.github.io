@@ -1,10 +1,12 @@
 # Domain Objects
 
+Now for the fun part! Hopefully you have already [built Oxen](./development/build_and_run.md) and learned how to [add your first command](./development/add_command.md).
+
 In order to fully grok the Oxen codebase, it's important to define a few terms and understand the different [domain objects](domains.md). This way you'll have the right terminology to build upon and know where to look when adding or debugging features. 
 
 These domains are defined so we are all speaking the same language while diving into the code base. We will start with what the objects are, why they exist, and how objects are stored on disk, then we will build up intuition of how the system works as a whole.
 
-# File Structure
+# oxen init
 
 Similar to `git`, we store all the meta data for a repository in a hidden local `.oxen` directory. To start the learning journey let's initialize and empty Oxen repository locally by using [oxen init](./commands/init.md).
 
