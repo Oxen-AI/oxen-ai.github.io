@@ -90,41 +90,14 @@ It also contains the timestamp of the commit, and a user provided message. All o
 
 Each commit has a unique id (hash) that can be verified to ensure the integrity of the data in this commit. It is a combination of the data within all the files of the commit, the user data, timestamp, and the message.
 
-If you remember from the [repository](/domains/repositories.md#content-addressable-file-system) section, we compute the hash of each file when we add and commit it to the repository.
-
-The code for computing the commit id looks something like this:
-
-```rust
-pub fn compute_commit_hash<E>(commit_data: &NewCommit, entries: &[E]) -> String
-where
-    E: ContentHashable + std::fmt::Debug,
-{
-    // xxHasher
-    let mut commit_hasher = hasher::new();
-
-    // Write the hash of each entry to the commit hasher
-    for entry in entries.iter() {
-        let hash = entry.content_hash();
-        let input = hash.as_bytes();
-        commit_hasher.update(input);
-    }
-
-    // Write the user name, email, message, timestamp, and parent commit ids
-    let commit_str = format!("{commit_data:?}");
-    commit_hasher.update(commit_str.as_bytes());
-
-    // Return the hexadecimal representation of the commit id
-    let val = commit_hasher.digest();
-    format!("{val:x}")
-}
-```
-
 What's nice about this is that once the data has been synced to the remote server, we can verify that the data is valid by computing the hashes of the files and the commit data and comparing this to the id of the commit in the database.
 
-# 🌲 Commit Merkle Tree
+# Commit History
 
-TODO: Talk about merkle tree.
+Every commit (except the first) has a list of parent commit ids. Most commits have a single parent, but in the case of a merge commit, there can be multiple parent commit ids. You can traverse the commit history by following the parent commit ids until you hit the first commit.
 
-As you can see, each commit has a list of parent commit ids. This is used to create a [merkle tree](https://en.wikipedia.org/wiki/Merkle_tree). The root commit will have no parent commits.
+You can use the `oxen log` command to print out the commit history starting with the most recent commit on the current branch.
 
-Our first couple of examples will have a linear commit tree with one parent per commit. This is the most common case when getting started. But as you will see later with merge commits, commits can have multiple parent commits when combining work from multiple branches.
+## Next Up: Branches
+
+Learn how commits relate to [Branches](./branches.md) in the next section.
