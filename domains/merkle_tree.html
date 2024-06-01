@@ -1,0 +1,398 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Merkle Tree - Oxen</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../init.html">🐂 🌾 Oxen.ai</a></li><li class="chapter-item expanded "><a href="../development.html"><strong aria-hidden="true">1.</strong> Development</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../development/installation.html"><strong aria-hidden="true">1.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../development/build_and_run.html"><strong aria-hidden="true">1.2.</strong> Build & Run</a></li><li class="chapter-item expanded "><a href="../development/add_command.html"><strong aria-hidden="true">1.3.</strong> Adding a Command</a></li><li class="chapter-item expanded "><a href="../development/testing.html"><strong aria-hidden="true">1.4.</strong> Testing</a></li><li class="chapter-item expanded "><a href="../development/release.html"><strong aria-hidden="true">1.5.</strong> Release</a></li></ol></li><li class="chapter-item expanded "><a href="../domains.html"><strong aria-hidden="true">2.</strong> Domains</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../domains/repositories.html"><strong aria-hidden="true">2.1.</strong> Repositories</a></li><li class="chapter-item expanded "><a href="../domains/commits.html"><strong aria-hidden="true">2.2.</strong> Commits</a></li><li class="chapter-item expanded "><a href="../domains/branches.html"><strong aria-hidden="true">2.3.</strong> Branches</a></li><li class="chapter-item expanded "><a href="../domains/merkle_tree.html" class="active"><strong aria-hidden="true">2.4.</strong> Merkle Tree</a></li><li class="chapter-item expanded "><a href="../domains/data_frames.html"><strong aria-hidden="true">2.5.</strong> Data Frames</a></li><li class="chapter-item expanded "><a href="../domains/schemas.html"><strong aria-hidden="true">2.6.</strong> Schemas</a></li><li class="chapter-item expanded "><a href="../domains/diffs.html"><strong aria-hidden="true">2.7.</strong> Diffs</a></li></ol></li><li class="chapter-item expanded "><a href="../commands.html"><strong aria-hidden="true">3.</strong> Commands</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../commands/init.html"><strong aria-hidden="true">3.1.</strong> init</a></li><li class="chapter-item expanded "><a href="../commands/config.html"><strong aria-hidden="true">3.2.</strong> config</a></li><li class="chapter-item expanded "><a href="../commands/add.html"><strong aria-hidden="true">3.3.</strong> add</a></li><li class="chapter-item expanded "><a href="../commands/status.html"><strong aria-hidden="true">3.4.</strong> status</a></li><li class="chapter-item expanded "><a href="../commands/commit.html"><strong aria-hidden="true">3.5.</strong> commit</a></li><li class="chapter-item expanded "><a href="../commands/checkout.html"><strong aria-hidden="true">3.6.</strong> checkout</a></li><li class="chapter-item expanded "><a href="../commands/push.html"><strong aria-hidden="true">3.7.</strong> push</a></li><li class="chapter-item expanded "><a href="../commands/clone.html"><strong aria-hidden="true">3.8.</strong> clone</a></li><li class="chapter-item expanded "><a href="../commands/pull.html"><strong aria-hidden="true">3.9.</strong> pull</a></li></ol></li><li class="chapter-item expanded "><a href="../data_types.html"><strong aria-hidden="true">4.</strong> Data Types</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../data_types/text.html"><strong aria-hidden="true">4.1.</strong> Text</a></li><li class="chapter-item expanded "><a href="../data_types/image.html"><strong aria-hidden="true">4.2.</strong> Image</a></li><li class="chapter-item expanded "><a href="../data_types/audio.html"><strong aria-hidden="true">4.3.</strong> Audio</a></li><li class="chapter-item expanded "><a href="../data_types/video.html"><strong aria-hidden="true">4.4.</strong> Video</a></li><li class="chapter-item expanded "><a href="../data_types/tabular.html"><strong aria-hidden="true">4.5.</strong> Tabular</a></li><li class="chapter-item expanded "><a href="../data_types/binary.html"><strong aria-hidden="true">4.6.</strong> Binary</a></li></ol></li><li class="chapter-item expanded "><a href="../optimizations.html"><strong aria-hidden="true">5.</strong> Optimizations</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../optimizations/merkle_tree.html"><strong aria-hidden="true">5.1.</strong> Merkle Tree</a></li><li class="chapter-item expanded "><a href="../optimizations/concurrency.html"><strong aria-hidden="true">5.2.</strong> Concurrency</a></li><li class="chapter-item expanded "><a href="../optimizations/hashing.html"><strong aria-hidden="true">5.3.</strong> Hashing</a></li><li class="chapter-item expanded "><a href="../optimizations/compression.html"><strong aria-hidden="true">5.4.</strong> Compression</a></li><li class="chapter-item expanded "><a href="../optimizations/networking.html"><strong aria-hidden="true">5.5.</strong> Networking</a></li><li class="chapter-item expanded "><a href="../optimizations/remote_workspace.html"><strong aria-hidden="true">5.6.</strong> Remote Workspace</a></li><li class="chapter-item expanded "><a href="../optimizations/storage.html"><strong aria-hidden="true">5.7.</strong> Storage</a></li><li class="chapter-item expanded "><a href="../optimizations/why_not_git.html"><strong aria-hidden="true">5.8.</strong> Why not extend Git?</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Oxen</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="files-directories-and-merkle-trees-"><a class="header" href="#files-directories-and-merkle-trees-">Files, Directories and Merkle Trees 🌲</a></h1>
+<p>When you create a commit within Oxen, you can think of it as a snapshot of the state of the files and directories in the repository at a particular point in time. This means each commit will need a reference to all the files and directories that are present in the repository at the time of the commit.</p>
+<p>Let's use an example file structure to learn the ins and outs of Oxen's file system.</p>
+<p>Commit A</p>
+<pre><code>README.md
+LICENSE
+images/
+  image0.jpg
+  image1.jpg
+  image2.jpg
+  image3.jpg
+  image4.jpg
+</code></pre>
+<p>This is a simple file structure with a README.md at the top level and a sub-directory of images. Start by initializing a new repository, then adding and committing the files.</p>
+<pre><code class="language-bash">oxen init
+oxen add README.md
+oxen add images/
+oxen commit -m "adding data"
+</code></pre>
+<p>On commit we save off all the hashes of the file contents and save the data into a Content Addressable File System (CAFS) within the <code>.oxen/versions</code> directory. This makes it so we don't duplicate the same file data across commits.</p>
+<pre><code class="language-bash">$ tree .oxen/versions/files/
+
+.oxen/versions/files/
+├── 43
+│   └── 94f02b679bcf0114b1fb631c250d0a
+│       └── data.jpg
+├── 58
+│   └── 8b7f5296c1a6041d350d1f6be41b3
+│       └── data.jpg
+├── 64
+│   └── e1a1512c6d5b1b6dcf2122326370f1
+│       └── data.md
+├── 74
+│   └── bfd17b6b7c9b183878a26e1e62a30e
+│       └── data.jpg
+├── 7c
+│   └── 42afd26e73b8bfbc798288f1def1ed
+│       └── data
+├── c8
+│   └── 2d11a1e1223598d930454eecfab6ea
+│       └── data.jpg
+└── dc
+    └── 92962a4b05f5453718783fe3fc4b10
+        └── data.jpg
+
+15 directories, 7 files
+</code></pre>
+<p>Each file is accessible by its hash and original extension the file was stored with. For example, the hash of <code>images/image0.jpg</code> is <code>74bfd17b6b7c9b183878a26e1e62a30e</code> and it's extension is <code>jpg</code>, so the original contents can be found at <code>.oxen/versions/files/74/bfd17b6b7c9b183878a26e1e62a30e/data.jpg</code>.</p>
+<p>To find the hash and extension of any file in a commit, you can use the <code>oxen info</code> command.</p>
+<pre><code>oxen info images/image0.jpg
+74bfd17b6b7c9b183878a26e1e62a30e	13030	image	image/jpeg	jpg	12099a4ca3b15c36
+</code></pre>
+<p>The CAFS makes it easy to fetch the file data for a given commit, but we need some sort of database that lists the original file names and paths. This way when switching between commits we can efficiently restore the files that have been added/changed/removed.</p>
+<h1 id="naive-implementation"><a class="header" href="#naive-implementation">Naive Implementation</a></h1>
+<p>The simplest solution would be to have a key-value database for every commit that listed the file paths and pointed to their hashes and extensions.</p>
+<p>Commit A</p>
+<pre><code>README.md -&gt; {"hash": "64e1a1512c6d5b1b6dcf2122326370f1", "extension": ".md"}
+LICENSE -&gt; {"hash": "7c42afd26e73b8bfbc798288f1def1ed", "extension": ""}
+images/image1.jpg -&gt; {"hash": "74bfd17b6b7c9b183878a26e1e62a30e", "extension": ".jpg"}
+images/image2.jpg -&gt; {"hash": "dc92962a4b05f5453718783fe3fc4b10", "extension": ".jpg"}
+images/image3.jpg -&gt; {"hash": "588b7f5296c1a6041d350d1f6be41b3", "extension": ".jpg"}
+images/image4.jpg -&gt; {"hash": "c82d11a1e1223598d930454eecfab6ea", "extension": ".jpg"}
+images/image5.jpg -&gt; {"hash": "4394f02b679bcf0114b1fb631c250d0a", "extension": ".jpg"}
+</code></pre>
+<p>We could store this in a rocksdb database in <code>.oxen/history/{commit_hash}/files</code>. The keys would be the file paths and the values would be the hashes and extensions. Then when swapping between commits all we would have to do is clear the current working directory and re-construct all the files from the respective commit database!</p>
+<p>Psuedo Code:</p>
+<pre><code class="language-bash">set commit_hash 1d278f841510b8e7
+rm -rf working_dir
+for dir, hash, ext in (oxen db list .oxen/versions/files/$commit_hash/) ; 
+  mkdir -p working_dir/$dir ;
+  cp .oxen/versions/files/$commit_hash/$hash/data$ext working_dir/$dir/ ;
+end
+</code></pre>
+<p>Version control complete. Let's call it a day and go relax on the beach 😎 🏝️.</p>
+<p>Of course, we are not here to build naive inefficient version control tool. Oxen is a blazing fast version control system that is designed to handle large amounts of data efficiently. Even if clearing and restoring the working directory is simple, there are many reasons it is not optimal.</p>
+<h2 id="why-is-this-inefficient"><a class="header" href="#why-is-this-inefficient">Why is this inefficient?</a></h2>
+<p>To see why this naive approach is sub-optimal, imagine we are collecting image training data for a computer vision system. We put Oxen in a loop adding one new image at a time to the <code>images/</code> directory. Each time we add an image we commit the changes.</p>
+<pre><code class="language-fish">for i in (seq 100) ; 
+  # imaginary data collection pipeline
+  cp /path/to/images/image$i.jpg images/image$i.jpg ;
+
+  # oxen add and commit
+  oxen add images/image$i.jpg ;
+  oxen commit -m "adding image$i" ;
+end
+</code></pre>
+<p>If we had gone the naive route, this would balloon in redundancy even with just our list of pointers to hashes. Each database list repeats the same file paths and the hashes over and over again.</p>
+<p>Commit A</p>
+<pre><code>README.md -&gt; hash1
+LICENSE -&gt; hash2
+images/image0.jpg -&gt; hash3
+images/image1.jpg -&gt; hash4
+images/image2.jpg -&gt; hash5
+images/image3.jpg -&gt; hash6
+</code></pre>
+<p>Commit B</p>
+<pre><code>README.md -&gt; hash1
+LICENSE -&gt; hash2
+images/image0.jpg -&gt; hash3
+images/image1.jpg -&gt; hash4
+images/image2.jpg -&gt; hash5
+images/image3.jpg -&gt; hash6
+images/image4.jpg -&gt; hash7
+</code></pre>
+<p>Commit C</p>
+<pre><code>README.md -&gt; hash1
+LICENSE -&gt; hash2
+images/image0.jpg -&gt; hash3
+images/image1.jpg -&gt; hash4
+images/image2.jpg -&gt; hash5
+images/image3.jpg -&gt; hash6
+images/image4.jpg -&gt; hash7
+images/image5.jpg -&gt; hash8
+</code></pre>
+<p>...</p>
+<p>Commit 10_000</p>
+<pre><code>README.md -&gt; hash1
+LICENSE -&gt; hash2
+images/image0.jpg -&gt; hash3
+images/image1.jpg -&gt; hash4
+images/image2.jpg -&gt; hash5
+images/image3.jpg -&gt; hash6
+images/image4.jpg -&gt; hash7
+images/image5.jpg -&gt; hash8
+...
+images/image10_000.jpg -&gt; hash10_000
+</code></pre>
+<p>Do the math once we get to a dataset of 10,000 images. Each commit duplicates 10,000+1 values. 10,000 + 10,001 + 10,002 + 10,003 = 40,006 values in our collective databases.</p>
+<pre><code>.oxen/history/COMMIT_A/files -&gt; 10,000 values
+.oxen/history/COMMIT_B/files -&gt; 10,001 values
+.oxen/history/COMMIT_C/files -&gt; 10,002 values
+.oxen/history/COMMIT_D/files -&gt; 10,003 values
+
+Total Values: 40,006
+</code></pre>
+<h1 id="optimizations-w-merkle-trees"><a class="header" href="#optimizations-w-merkle-trees">Optimizations w/ Merkle Trees</a></h1>
+<p>Clearly there is a lot of shared data between the commits above... Adding one file should not require to you copy the entire key-value database. We need some sort of data structure that can efficiently store the file paths and hashes without duplicating too much data across commits.</p>
+<p>Enter <a href="https://en.wikipedia.org/wiki/Merkle_tree">Merkle Trees</a> 🌲.</p>
+<p>Files and directories are already organized in a tree like fashion, so a merkle tree is a more natural fit for storing and traversing the file structure to begin with. They also make it so when we add additional data, we only need to copy subtrees instead of copying the entire database for each commit.</p>
+<p>What does a Merkle Tree within Oxen look like?</p>
+<p><img src="/images/merkle_tree/commit_a.png" alt="Commit A" /></p>
+<p>At the root node of the Merkle tree is a commit hash. This is the identifier you know and love which you can reference any commit in the system by.</p>
+<p>The root commit hash represents the content of all the data below it, including the files contained in the <code>images/</code> directory as well as the files directly in the <code>.</code> root directory (README.md, LICENSE, etc). Additionally all the files within a directory get sectioned off into VNodes. We will return to the importance of VNodes in a bit.</p>
+<p>At each level of the tree we see the contents of all the files hashed within that directory, and bucketed into VNodes.</p>
+<p>There are a few nice properties of storing everything in a Merkle Tree.</p>
+<ol>
+<li>
+<p>When we add, remove or change a file, we only need to update the subtree that contains that file. This means the storage grows logarithmically with the number of files in the repository instead of linearly.</p>
+</li>
+<li>
+<p>To recompute the root hash of a commit, we only need to hash the file paths and the hashes of the files that have changed. This means we can efficiently verify the integrity of the data by recomputing subtrees.</p>
+</li>
+<li>
+<p>We can use it to understand the small diff of the data that needs to be transferred over the network when syncing repositories.</p>
+</li>
+</ol>
+<p>TODO: Articulate these value props more clearly ^</p>
+<h2 id="adding-a-file"><a class="header" href="#adding-a-file">Adding a File</a></h2>
+<p>To see what happens when we add a new file to our repository, let's revisit our previous example of adding images to the <code>images/</code> directory. Say we have 8 images in our <code>images/</code> directory and we want to add a new image (9.jpg).</p>
+<p>The first thing we have to do is find which VNode bucket it falls into. Then we can recompute the hash of this subtree, and recursively update the hashes above it until we get to the root node. In this case we make four total updates to the tree, highlighted in green.</p>
+<ol>
+<li>Add the contents of the new image</li>
+<li>Update it's VNode hash</li>
+<li>Update the VNode hash of the <code>images/</code> parent directory</li>
+<li>Update the root node hash</li>
+</ol>
+<p><img src="/images/merkle_tree/commit_b.png" alt="Commit B" /></p>
+<p>Instead of copying the entire database to our new commit, we only need to copy pointers to the nodes that have changed. Let's look at what this looks like on disk.</p>
+<p>TODO: <code>oxen db list .oxen/objects/...</code></p>
+<h2 id="vnodes"><a class="header" href="#vnodes">VNodes</a></h2>
+<p>TODO: Describe the importance of vnodes.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../domains/branches.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../domains/data_frames.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../domains/branches.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../domains/data_frames.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
