@@ -101,7 +101,7 @@ Version control complete. Let's call it a day and go relax on the beach ğŸ˜ ğŸ
 
 Of course, we are not here to build naive inefficient version control tool. Oxen is a blazing fast version control system that is designed to handle large amounts of data efficiently. Even if clearing and restoring the working directory is simple, there are many reasons it is not optimal. 
 
-## Why is this inefficient?
+## Why Is This Inefficient?
 
 To see why this naive approach is sub-optimal, imagine we are collecting image training data for a computer vision system. We put Oxen in a loop adding one new image at a time to the `images/` directory. Each time we add an image we commit the changes.
 

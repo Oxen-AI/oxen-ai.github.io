@@ -13,7 +13,7 @@
     - [Repositories](./domains/repositories.md)
     - [Commits](./domains/commits.md)
     - [Branches](./domains/branches.md)
-    - [Merkle Tree](./domains/merkle_tree.md)
+    - [Merkle Trees](./domains/merkle_trees.md)
     - [Data Frames](./domains/data_frames.md)
     - [Schemas](./domains/schemas.md)
     - [Diffs](./domains/diffs.md)
