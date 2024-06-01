@@ -122,6 +122,6 @@ You can progress a branch as many commits as you want without affecting the main
 
 # Next Up: Files & Directories
 
-Now that you know the basic data structures for branches and commits, let's dive into how files and directories are stored in Oxen.
+Now that you know the basic data structures for branches and commits, let's dive into how branches and commits are tied to a set of files and directories.
 
 Next Up: [Files & Directories](/domains/objects.md)
