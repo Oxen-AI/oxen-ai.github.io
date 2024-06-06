@@ -97,9 +97,9 @@ end
 
 Version control complete. Let's call it a day and go relax on the beach 😎 🏝️.
 
-Of course, we are not here to build naive inefficient version control tool. Oxen is a blazing fast version control system that is designed to handle large amounts of data efficiently. Even if clearing and restoring the working directory is simple, there are many reasons it is not optimal (including wiping out untracked files 😱).
+Of course, we are not here to build naive inefficient version control tool. Oxen is a blazing fast version control system that is designed to handle large amounts of data efficiently. Even if clearing and restoring the working directory is simple, there are many reasons it is not optimal (including wiping out untracked files).
 
-## How do we make it faster?
+## Data Duplication 😥
 
 To see why this naive approach is sub-optimal, imagine we are collecting image training data for a computer vision system. We put Oxen in a loop adding one new image at a time to the `images/` directory. Each time we add an image we commit the changes.
 
@@ -246,19 +246,41 @@ You'll notice two parts to the VNode. The first is first two letters (`AB`) of t
 To drive this home, let's go back to our example directory with 10,000 images with the naive implementation from before. Remember 4 additions to the images directory after it contained 10,000 node resulted in 40,006 values in our database. Say our bucket size for VNodes is 10,000/256 ~= 40. This means on average we are copying 40 values with each commit. This will result in 10,160 total values in our DB instead of 40,006.
 
 
-## File Chunk Deduplication
+# File Chunk Deduplication
 
-While the Merkle Tree optimizations we've talked about so far make adding and committing snapshots of the directory structure to Oxen snappy, there are even more optimizations we can do at the file level itself. 
+The Merkle Tree optimizations we've talked about so far make adding and committing snapshots of the directory structure to Oxen snappy. The remainder of the storage cost is at the individual leaf nodes of the tree. We want Oxen to be efficient at storing *many files* and efficient at storing *large files* such as data frames of parquet, jsonl, csv, etc.
 
-Sometimes Oxen 🐂 can get a little chunky and need to slim down 😳.
+Visualizing how much storage space individual nodes take, a large CSV in the `.oxen/versions` directory can be the majority of the space. The pointers and hashes within the tree itself are relatively small.
 
-Remember, so far each time you make a commit, we make an *entire copy* of the file contents itself and put it into the `.oxen/versions` directory under it's hash. Imagine you are editing and committing a CSV file one row at a time, and making a commit with each change. This results in a lot of duplicated data. We not only want Oxen to be efficient at storing many files, but also efficient at storing large files such as data frames of parquet, jsonl, csv, etc.
+![Large CSV](/images/merkle_tree/large_csv.png)
 
-TODO: Image
+Remember, so far each time you make a commit, we make an **entire copy** of the file contents itself and put it into the `.oxen/versions` directory under it's hash.
 
-To combat this, Oxen uses a technique called file chunk deduplication. Instead of storing the entire file in the `.oxen/versions` directory, if Oxen detects that a file is being modified over and over again, it chunks up the file into "chunks" and stores these chunks in the `.oxen/chunks` directory and then stores a reference to the chunks in the Merkle Tree.
+![Large CSV](/images/merkle_tree/large_csv_version.png)
 
-TODO: Example of disk usage with and w/o file chunk dedup
+This can be a problem if we keep updating the same file over over and over again. Five small changes to a 1GB file will result in 5GB of storage.
+
+Think back to the key insight that we made earlier about duplicating data between versions of our tree. The same thing applies to large files. For example - what if you are editing and committing a CSV file one row at a time.
+
+![Prompts CSV](/images/merkle_tree/prompts_csv.png)
+
+This results in a lot of duplicated data. In fact rows 0-1,000,000 are all the same between Version A and Version B.
+
+To combat this, Oxen uses a technique called file chunk deduplication. Even if your Oxen repo is getting a little "chunky" we can leverage the fact that many of the chunks are the same to slim down the version history. Instead of duplicating the entire raw file in the `.oxen/versions` directory, we can break the file into "chunks" then store these chunks in the `.oxen/chunks` directory. 
+
+![Chunks](/images/merkle_tree/chunk_a.png)
+
+Then if you update any rows in the file, we create a new chunk for that section and update the leaf nodes of the tree.
+
+![Chunks](/images/merkle_tree/chunks_a_b.png)
+
+So the original tree looks like this.
+
+![Chunks](/images/merkle_tree/chunks.png)
+
+Then when the row is added, all we have to do is update the final chunk and propagate the changes up the tree.
+
+![Update Chunk](/images/merkle_tree/chunks_update.png)
 
 
 ## Benefits of the Merkle Tree
