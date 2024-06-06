@@ -1039,8 +1039,8 @@ for dir, hash, ext in (oxen db list .oxen/versions/files/$commit_hash/) ;
 end
 </code></pre>
 <p>Version control complete. Let's call it a day and go relax on the beach 😎 🏝️.</p>
-<p>Of course, we are not here to build naive inefficient version control tool. Oxen is a blazing fast version control system that is designed to handle large amounts of data efficiently. Even if clearing and restoring the working directory is simple, there are many reasons it is not optimal (including wiping out untracked files 😱).</p>
-<h2 id="how-do-we-make-it-faster"><a class="header" href="#how-do-we-make-it-faster">How do we make it faster?</a></h2>
+<p>Of course, we are not here to build naive inefficient version control tool. Oxen is a blazing fast version control system that is designed to handle large amounts of data efficiently. Even if clearing and restoring the working directory is simple, there are many reasons it is not optimal (including wiping out untracked files).</p>
+<h2 id="data-duplication-"><a class="header" href="#data-duplication-">Data Duplication 😥</a></h2>
 <p>To see why this naive approach is sub-optimal, imagine we are collecting image training data for a computer vision system. We put Oxen in a loop adding one new image at a time to the <code>images/</code> directory. Each time we add an image we commit the changes.</p>
 <pre><code class="language-fish">for i in (seq 100) ; 
   # imaginary data collection pipeline
@@ -1136,13 +1136,24 @@ Total Values: 40,006
 <p>You'll notice two parts to the VNode. The first is first two letters (<code>AB</code>) of the hash of the file path name, and the second is the hash of the VNode contents (<code>#DFEGA72</code>). To add an image, now we only need to find the bucket (based on it's file path), compute it's new hash, and make a copy of the items of the VNode database for it's new hash.</p>
 <p><img src="domains//images/merkle_tree/images_w_vnode_add_file.png" alt="With VNode Add File" /></p>
 <p>To drive this home, let's go back to our example directory with 10,000 images with the naive implementation from before. Remember 4 additions to the images directory after it contained 10,000 node resulted in 40,006 values in our database. Say our bucket size for VNodes is 10,000/256 ~= 40. This means on average we are copying 40 values with each commit. This will result in 10,160 total values in our DB instead of 40,006.</p>
-<h2 id="file-chunk-deduplication"><a class="header" href="#file-chunk-deduplication">File Chunk Deduplication</a></h2>
-<p>While the Merkle Tree optimizations we've talked about so far make adding and committing snapshots of the directory structure to Oxen snappy, there are even more optimizations we can do at the file level itself.</p>
-<p>Sometimes Oxen 🐂 can get a little chunky and need to slim down 😳.</p>
-<p>Remember, so far each time you make a commit, we make an <em>entire copy</em> of the file contents itself and put it into the <code>.oxen/versions</code> directory under it's hash. Imagine you are editing and committing a CSV file one row at a time, and making a commit with each change. This results in a lot of duplicated data. We not only want Oxen to be efficient at storing many files, but also efficient at storing large files such as data frames of parquet, jsonl, csv, etc.</p>
-<p>TODO: Image</p>
-<p>To combat this, Oxen uses a technique called file chunk deduplication. Instead of storing the entire file in the <code>.oxen/versions</code> directory, if Oxen detects that a file is being modified over and over again, it chunks up the file into "chunks" and stores these chunks in the <code>.oxen/chunks</code> directory and then stores a reference to the chunks in the Merkle Tree.</p>
-<p>TODO: Example of disk usage with and w/o file chunk dedup</p>
+<h1 id="file-chunk-deduplication"><a class="header" href="#file-chunk-deduplication">File Chunk Deduplication</a></h1>
+<p>The Merkle Tree optimizations we've talked about so far make adding and committing snapshots of the directory structure to Oxen snappy. The remainder of the storage cost is at the individual leaf nodes of the tree. We want Oxen to be efficient at storing <em>many files</em> and efficient at storing <em>large files</em> such as data frames of parquet, jsonl, csv, etc.</p>
+<p>Visualizing how much storage space individual nodes take, a large CSV in the <code>.oxen/versions</code> directory can be the majority of the space. The pointers and hashes within the tree itself are relatively small.</p>
+<p><img src="domains//images/merkle_tree/large_csv.png" alt="Large CSV" /></p>
+<p>Remember, so far each time you make a commit, we make an <strong>entire copy</strong> of the file contents itself and put it into the <code>.oxen/versions</code> directory under it's hash.</p>
+<p><img src="domains//images/merkle_tree/large_csv_version.png" alt="Large CSV" /></p>
+<p>This can be a problem if we keep updating the same file over over and over again. Five small changes to a 1GB file will result in 5GB of storage.</p>
+<p>Think back to the key insight that we made earlier about duplicating data between versions of our tree. The same thing applies to large files. For example - what if you are editing and committing a CSV file one row at a time.</p>
+<p><img src="domains//images/merkle_tree/prompts_csv.png" alt="Prompts CSV" /></p>
+<p>This results in a lot of duplicated data. In fact rows 0-1,000,000 are all the same between Version A and Version B.</p>
+<p>To combat this, Oxen uses a technique called file chunk deduplication. Even if your Oxen repo is getting a little "chunky" we can leverage the fact that many of the chunks are the same to slim down the version history. Instead of duplicating the entire raw file in the <code>.oxen/versions</code> directory, we can break the file into "chunks" then store these chunks in the <code>.oxen/chunks</code> directory.</p>
+<p><img src="domains//images/merkle_tree/chunk_a.png" alt="Chunks" /></p>
+<p>Then if you update any rows in the file, we create a new chunk for that section and update the leaf nodes of the tree.</p>
+<p><img src="domains//images/merkle_tree/chunks_a_b.png" alt="Chunks" /></p>
+<p>So the original tree looks like this.</p>
+<p><img src="domains//images/merkle_tree/chunks.png" alt="Chunks" /></p>
+<p>Then when the row is added, all we have to do is update the final chunk and propagate the changes up the tree.</p>
+<p><img src="domains//images/merkle_tree/chunks_update.png" alt="Update Chunk" /></p>
 <h2 id="benefits-of-the-merkle-tree"><a class="header" href="#benefits-of-the-merkle-tree">Benefits of the Merkle Tree</a></h2>
 <p>To summarize, there are a few nice properties of a Merkle Tree as our data structure.</p>
 <ol>
