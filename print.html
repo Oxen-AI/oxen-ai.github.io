@@ -968,8 +968,7 @@ c719c887cc250784
 <p>Next Up: <a href="domains//domains/objects.html">Files &amp; Directories</a></p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="files-directories-and-merkle-trees-"><a class="header" href="#files-directories-and-merkle-trees-">Files, Directories and Merkle Trees 🌲</a></h1>
 <p>When you create a commit within Oxen, you can think of it as a snapshot of the state of the files and directories in the repository at a particular point in time. This means each commit will need a reference to all the files and directories that are present in the repository at the time of the commit.</p>
-<p>Let's use an example file structure to learn the ins and outs of Oxen's file system.</p>
-<p>Commit A</p>
+<p>Let's use a small dataset as an example.</p>
 <pre><code>README.md
 LICENSE
 images/
@@ -1040,8 +1039,8 @@ for dir, hash, ext in (oxen db list .oxen/versions/files/$commit_hash/) ;
 end
 </code></pre>
 <p>Version control complete. Let's call it a day and go relax on the beach 😎 🏝️.</p>
-<p>Of course, we are not here to build naive inefficient version control tool. Oxen is a blazing fast version control system that is designed to handle large amounts of data efficiently. Even if clearing and restoring the working directory is simple, there are many reasons it is not optimal.</p>
-<h2 id="why-is-this-inefficient"><a class="header" href="#why-is-this-inefficient">Why Is This Inefficient?</a></h2>
+<p>Of course, we are not here to build naive inefficient version control tool. Oxen is a blazing fast version control system that is designed to handle large amounts of data efficiently. Even if clearing and restoring the working directory is simple, there are many reasons it is not optimal (including wiping out untracked files 😱).</p>
+<h2 id="how-do-we-make-it-faster"><a class="header" href="#how-do-we-make-it-faster">How do we make it faster?</a></h2>
 <p>To see why this naive approach is sub-optimal, imagine we are collecting image training data for a computer vision system. We put Oxen in a loop adding one new image at a time to the <code>images/</code> directory. Each time we add an image we commit the changes.</p>
 <pre><code class="language-fish">for i in (seq 100) ; 
   # imaginary data collection pipeline
@@ -1054,42 +1053,42 @@ end
 </code></pre>
 <p>If we had gone the naive route, this would balloon in redundancy even with just our list of pointers to hashes. Each database list repeats the same file paths and the hashes over and over again.</p>
 <p>Commit A</p>
-<pre><code>README.md -&gt; hash1
-LICENSE -&gt; hash2
+<pre><code>README.md         -&gt; hash1
+LICENSE           -&gt; hash2
 images/image0.jpg -&gt; hash3
 images/image1.jpg -&gt; hash4
 images/image2.jpg -&gt; hash5
 images/image3.jpg -&gt; hash6
 </code></pre>
 <p>Commit B</p>
-<pre><code>README.md -&gt; hash1
-LICENSE -&gt; hash2
-images/image0.jpg -&gt; hash3
-images/image1.jpg -&gt; hash4
-images/image2.jpg -&gt; hash5
-images/image3.jpg -&gt; hash6
-images/image4.jpg -&gt; hash7
+<pre><code>README.md         -&gt; hash1 # repeated
+LICENSE           -&gt; hash2 # repeated
+images/image0.jpg -&gt; hash3 # repeated
+images/image1.jpg -&gt; hash4 # repeated
+images/image2.jpg -&gt; hash5 # repeated
+images/image3.jpg -&gt; hash6 # repeated
+images/image4.jpg -&gt; hash7 # NEW
 </code></pre>
 <p>Commit C</p>
-<pre><code>README.md -&gt; hash1
-LICENSE -&gt; hash2
-images/image0.jpg -&gt; hash3
-images/image1.jpg -&gt; hash4
-images/image2.jpg -&gt; hash5
-images/image3.jpg -&gt; hash6
-images/image4.jpg -&gt; hash7
-images/image5.jpg -&gt; hash8
+<pre><code>README.md         -&gt; hash1 # repeated
+LICENSE           -&gt; hash2 # repeated
+images/image0.jpg -&gt; hash3 # repeated
+images/image1.jpg -&gt; hash4 # repeated
+images/image2.jpg -&gt; hash5 # repeated
+images/image3.jpg -&gt; hash6 # repeated
+images/image4.jpg -&gt; hash7 # repeated
+images/image5.jpg -&gt; hash8 # NEW
 </code></pre>
 <p>...</p>
 <p>Commit 10_000</p>
-<pre><code>README.md -&gt; hash1
-LICENSE -&gt; hash2
-images/image0.jpg -&gt; hash3
-images/image1.jpg -&gt; hash4
-images/image2.jpg -&gt; hash5
-images/image3.jpg -&gt; hash6
-images/image4.jpg -&gt; hash7
-images/image5.jpg -&gt; hash8
+<pre><code>README.md              -&gt; hash1
+LICENSE                -&gt; hash2
+images/image0.jpg      -&gt; hash3
+images/image1.jpg      -&gt; hash4
+images/image2.jpg      -&gt; hash5
+images/image3.jpg      -&gt; hash6
+images/image4.jpg      -&gt; hash7
+images/image5.jpg      -&gt; hash8
 ...
 images/image10_000.jpg -&gt; hash10_000
 </code></pre>
@@ -1101,16 +1100,51 @@ images/image10_000.jpg -&gt; hash10_000
 
 Total Values: 40,006
 </code></pre>
+<p>A key observation is that we are duplicating a lot of data across commits. This will be a common pattern to look for when optimizing the storage within Oxen.</p>
 <h1 id="optimizations-w-merkle-trees"><a class="header" href="#optimizations-w-merkle-trees">Optimizations w/ Merkle Trees</a></h1>
-<p>Clearly there is a lot of shared data between the commits above... Adding one file should not require to you copy the entire key-value database. We need some sort of data structure that can efficiently store the file paths and hashes without duplicating too much data across commits.</p>
+<p>Adding one file should not require to you copy the entire key-value database. We need some sort of data structure that can efficiently store the file paths and hashes without duplicating too much data across commits.</p>
 <p>Enter <a href="https://en.wikipedia.org/wiki/Merkle_tree">Merkle Trees</a> 🌲.</p>
-<p>Files and directories are already organized in a tree like fashion, so a merkle tree is a more natural fit for storing and traversing the file structure to begin with. They also make it so when we add additional data, we only need to copy subtrees instead of copying the entire database for each commit.</p>
+<p>Files and directories are already organized in a tree like fashion, so a Merkle Tree is a more natural fit for storing and traversing the file structure to begin with. The Oxen Merkle Tree implementation also make it so when we add additional data, we only need to copy subtrees instead of copying the entire database for each commit.</p>
 <p>What does a Merkle Tree within Oxen look like?</p>
 <p><img src="domains//images/merkle_tree/commit_a.png" alt="Commit A" /></p>
 <p>At the root node of the Merkle tree is a commit hash. This is the identifier you know and love which you can reference any commit in the system by.</p>
 <p>The root commit hash represents the content of all the data below it, including the files contained in the <code>images/</code> directory as well as the files directly in the <code>.</code> root directory (README.md, LICENSE, etc). Additionally all the files within a directory get sectioned off into VNodes. We will return to the importance of VNodes in a bit.</p>
 <p>At each level of the tree we see the contents of all the files hashed within that directory, and bucketed into VNodes.</p>
-<p>There are a few nice properties of storing everything in a Merkle Tree.</p>
+<h2 id="adding-a-file"><a class="header" href="#adding-a-file">Adding a File</a></h2>
+<p>To see what happens when we add a new file to our repository, let's revisit our previous example of adding images to the <code>images/</code> directory. Say we have 8 images in our <code>images/</code> directory and we want to add a new image (9.jpg).</p>
+<p>The first thing we have to do is find which VNode bucket it falls into (more on this later). Then we can recompute the hash of this subtree, and recursively update the hashes above it until we get to the root node.</p>
+<p>In this case we make four total updates to the tree, highlighted in green.</p>
+<ol>
+<li>Add the contents of the new image to our <code>.oxen/versions/</code> directory</li>
+<li>Find the VNode it belongs to, and deep copy it to a new VNode with a new hash</li>
+<li>Update the VNode hash of the <code>images/</code> parent directory</li>
+<li>Update the root node hash</li>
+</ol>
+<p><img src="domains//images/merkle_tree/commit_b.png" alt="Commit B" /></p>
+<p>The Merkle Tree nodes are all global to the repository, and can get re-used and shared between commits. Instead of copying the entire database to our new commit, only copy the subtrees that changed. On adding a file, we only need to update a single VNode and copy it's contents. This is a much faster operation than copying every file within our databases.</p>
+<p>For another example, let's see what happens when we update the <code>README.md</code> file.</p>
+<p><img src="domains//images/merkle_tree/commit_c.png" alt="Commit C" /></p>
+<p>This time, we only need to update the VNode that contains the <code>README.md</code> file and it's parent in the root node.</p>
+<h2 id="what-is-this-vnode"><a class="header" href="#what-is-this-vnode">What is this "VNode"?</a></h2>
+<p>One of the goals of Oxen is to be able to scale to directories with an arbitrary number of files. Imagine for a second that you have a directory of 100k or 1 million images. Storing all of these values directly at the directory level node would be inefficient. Every time you commit a single image to the directory, you would need to copy all the pointers and recompute the hash for the entire directory.</p>
+<p>For example imagine we had no VNodes at the directory level.</p>
+<p><img src="domains//images/merkle_tree/no_vnode.png" alt="No VNode" /></p>
+<p>If we want to add a single file, we would have to copy all the pointers and recompute the hash for the entire directory.</p>
+<p><img src="domains//images/merkle_tree/no_vnode_add_file.png" alt="Add File" /></p>
+<p>VNode's add an intermediate bucket we can add files to so that we only have to copy a subset of pointers. Which VNode a file belongs to is computed from the hash of file path name itself. This way files get evenly distributed into buckets within the tree.</p>
+<p><img src="domains//images/merkle_tree/images_w_vnode.png" alt="With VNode" /></p>
+<p>You'll notice two parts to the VNode. The first is first two letters (<code>AB</code>) of the hash of the file path name, and the second is the hash of the VNode contents (<code>#DFEGA72</code>). To add an image, now we only need to find the bucket (based on it's file path), compute it's new hash, and make a copy of the items of the VNode database for it's new hash.</p>
+<p><img src="domains//images/merkle_tree/images_w_vnode_add_file.png" alt="With VNode Add File" /></p>
+<p>To drive this home, let's go back to our example directory with 10,000 images with the naive implementation from before. Remember 4 additions to the images directory after it contained 10,000 node resulted in 40,006 values in our database. Say our bucket size for VNodes is 10,000/256 ~= 40. This means on average we are copying 40 values with each commit. This will result in 10,160 total values in our DB instead of 40,006.</p>
+<h2 id="file-chunk-deduplication"><a class="header" href="#file-chunk-deduplication">File Chunk Deduplication</a></h2>
+<p>While the Merkle Tree optimizations we've talked about so far make adding and committing snapshots of the directory structure to Oxen snappy, there are even more optimizations we can do at the file level itself.</p>
+<p>Sometimes Oxen 🐂 can get a little chunky and need to slim down 😳.</p>
+<p>Remember, so far each time you make a commit, we make an <em>entire copy</em> of the file contents itself and put it into the <code>.oxen/versions</code> directory under it's hash. Imagine you are editing and committing a CSV file one row at a time, and making a commit with each change. This results in a lot of duplicated data. We not only want Oxen to be efficient at storing many files, but also efficient at storing large files such as data frames of parquet, jsonl, csv, etc.</p>
+<p>TODO: Image</p>
+<p>To combat this, Oxen uses a technique called file chunk deduplication. Instead of storing the entire file in the <code>.oxen/versions</code> directory, if Oxen detects that a file is being modified over and over again, it chunks up the file into "chunks" and stores these chunks in the <code>.oxen/chunks</code> directory and then stores a reference to the chunks in the Merkle Tree.</p>
+<p>TODO: Example of disk usage with and w/o file chunk dedup</p>
+<h2 id="benefits-of-the-merkle-tree"><a class="header" href="#benefits-of-the-merkle-tree">Benefits of the Merkle Tree</a></h2>
+<p>To summarize, there are a few nice properties of a Merkle Tree as our data structure.</p>
 <ol>
 <li>
 <p>When we add, remove or change a file, we only need to update the subtree that contains that file. This means the storage grows logarithmically with the number of files in the repository instead of linearly.</p>
@@ -1122,21 +1156,6 @@ Total Values: 40,006
 <p>We can use it to understand the small diff of the data that needs to be transferred over the network when syncing repositories.</p>
 </li>
 </ol>
-<p>TODO: Articulate these value props more clearly ^</p>
-<h2 id="adding-a-file"><a class="header" href="#adding-a-file">Adding a File</a></h2>
-<p>To see what happens when we add a new file to our repository, let's revisit our previous example of adding images to the <code>images/</code> directory. Say we have 8 images in our <code>images/</code> directory and we want to add a new image (9.jpg).</p>
-<p>The first thing we have to do is find which VNode bucket it falls into. Then we can recompute the hash of this subtree, and recursively update the hashes above it until we get to the root node. In this case we make four total updates to the tree, highlighted in green.</p>
-<ol>
-<li>Add the contents of the new image</li>
-<li>Update it's VNode hash</li>
-<li>Update the VNode hash of the <code>images/</code> parent directory</li>
-<li>Update the root node hash</li>
-</ol>
-<p><img src="domains//images/merkle_tree/commit_b.png" alt="Commit B" /></p>
-<p>Instead of copying the entire database to our new commit, we only need to copy pointers to the nodes that have changed. Let's look at what this looks like on disk.</p>
-<p>TODO: <code>oxen db list .oxen/objects/...</code></p>
-<h2 id="vnodes"><a class="header" href="#vnodes">VNodes</a></h2>
-<p>TODO: Describe the importance of vnodes.</p>
 <div style="break-before: page; page-break-before: always;"></div><div style="break-before: page; page-break-before: always;"></div><div style="break-before: page; page-break-before: always;"></div><div style="break-before: page; page-break-before: always;"></div><h1 id="commands"><a class="header" href="#commands">Commands</a></h1>
 <p>The core commands in commands in Oxen map to git so that it is an easy learning curve to get started.</p>
 <pre><code class="language-bash">oxen init
