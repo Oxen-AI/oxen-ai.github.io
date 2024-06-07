@@ -284,14 +284,19 @@ Then when the row is added, all we have to do is update the final chunk and prop
 
 What's great about this, is now we also only need to sync the chunks that have changed over the network and not the entire file. Chunks themselves are ~16kb in size, so updating a single value in a 1GB file will only sync this small portion of the file.
 
-When swapping between versions we simply reconstruct the chunks associated with each file and write them to disk. This means we need one more small db that stores the mapping from chunk_idx -> chunk_hash. We can store this in the `.oxen/versions` directory instead of the file contents, saving space!
+When swapping between versions we simply reconstruct the chunks associated with each file and write them to disk. This means we need a small db that stores the mapping from chunk_idx -> chunk_hash. We can now store this in the `.oxen/versions` directory instead of the file contents.
+
+![Chunk Mapping](/images/merkle_tree/chunk_mapping.png)
 
 ## Benefits of the Merkle Tree
 
-To summarize, there are a few nice properties of a Merkle Tree as our data structure.
+Hopefully if you are new to Merkle Trees, this should give you a good intuition for how they work in practice. There are a few nice properties of a Merkle Tree as our data structure.
 
 1. When we add, remove or change a file, we only need to update the subtree that contains that file. This means the storage grows logarithmically with the number of files in the repository instead of linearly.
 
-2. To recompute the root hash of a commit, we only need to hash the file paths and the hashes of the files that have changed. This means we can efficiently verify the integrity of the data by recomputing subtrees.
+2. To recompute the root hash of a commit, we only need to hash the file paths and the hashes of the files that have changed. This means we can efficiently verify the integrity of the data by recomputing subtrees instead of the whole tree.
 
-3. We can use it to understand the small diff of the data that needs to be transferred over the network when syncing repositories.
+3. We can use it to understand the small chunks of the data that changes when transferring over the network when syncing repositories.
+
+4. Since each subtree is also a merkle tree, this will allow us to clone small subtrees, make changes, and push them back up to the parent. This can be powerful when you only want to update the README for example but have a large binary file attached.
+
