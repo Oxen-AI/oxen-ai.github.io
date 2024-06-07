@@ -1,6 +1,6 @@
 # Files, Directories and Merkle Trees 🌲
 
-When you create a commit within Oxen, you can think of it as a snapshot of the state of the files and directories in the repository at a particular point in time. This means each commit will need a reference to all the files and directories that are present in the repository at the time of the commit.
+When you create a commit within Oxen, you can think of it as a snapshot of the state of the files and directories in the repository at a particular point in time. This means each commit will need a reference to all the files and directories that are present in the repository at that point in time.
 
 Let's use a small dataset as an example.
 
@@ -130,25 +130,25 @@ images/image3.jpg -> hash6
 Commit B
 
 ```
-README.md         -> hash1 # repeated
-LICENSE           -> hash2 # repeated
-images/image0.jpg -> hash3 # repeated
-images/image1.jpg -> hash4 # repeated
-images/image2.jpg -> hash5 # repeated
-images/image3.jpg -> hash6 # repeated
+README.md         -> hash1 # repeated 1 time
+LICENSE           -> hash2 # repeated 1 time
+images/image0.jpg -> hash3 # repeated 1 time
+images/image1.jpg -> hash4 # repeated 1 time
+images/image2.jpg -> hash5 # repeated 1 time
+images/image3.jpg -> hash6 # repeated 1 time
 images/image4.jpg -> hash7 # NEW
 ```
 
 Commit C
 
 ```
-README.md         -> hash1 # repeated
-LICENSE           -> hash2 # repeated
-images/image0.jpg -> hash3 # repeated
-images/image1.jpg -> hash4 # repeated
-images/image2.jpg -> hash5 # repeated
-images/image3.jpg -> hash6 # repeated
-images/image4.jpg -> hash7 # repeated
+README.md         -> hash1 # repeated 2 times
+LICENSE           -> hash2 # repeated 2 times
+images/image0.jpg -> hash3 # repeated 2 times
+images/image1.jpg -> hash4 # repeated 2 times
+images/image2.jpg -> hash5 # repeated 2 times
+images/image3.jpg -> hash6 # repeated 2 times
+images/image4.jpg -> hash7 # repeated 1 time
 images/image5.jpg -> hash8 # NEW
 ```
 
@@ -157,14 +157,14 @@ images/image5.jpg -> hash8 # NEW
 Commit 10_000
 
 ```
-README.md              -> hash1
-LICENSE                -> hash2
-images/image0.jpg      -> hash3
-images/image1.jpg      -> hash4
-images/image2.jpg      -> hash5
-images/image3.jpg      -> hash6
-images/image4.jpg      -> hash7
-images/image5.jpg      -> hash8
+README.md              -> hash1 # repeated N times
+LICENSE                -> hash2 # repeated N times
+images/image0.jpg      -> hash3 # repeated N times
+images/image1.jpg      -> hash4 # repeated N times
+images/image2.jpg      -> hash5 # repeated N times
+images/image3.jpg      -> hash6 # repeated N times
+images/image4.jpg      -> hash7 # repeated N times
+images/image5.jpg      -> hash8 # repeated N times
 ...
 images/image10_000.jpg -> hash10_000
 ```
@@ -248,9 +248,9 @@ To drive this home, let's go back to our example directory with 10,000 images wi
 
 # File Chunk Deduplication
 
-The Merkle Tree optimizations we've talked about so far make adding and committing snapshots of the directory structure to Oxen snappy. The remainder of the storage cost is at the individual leaf nodes of the tree. We want Oxen to be efficient at storing *many files* and efficient at storing *large files* such as data frames of parquet, jsonl, csv, etc.
+The Merkle Tree optimizations we've talked about so far make adding and committing snapshots of the directory structure to Oxen snappy. The remainder of the storage cost is at the individual leaf nodes of the tree. We want Oxen to be efficient at storing many files as well as efficient at storing large files. In our context these large files may be data frames of [parquet](https://parquet.apache.org/), [arrow](https://arrow.apache.org/), [jsonl](https://jsonlines.org/), [csv](https://en.wikipedia.org/wiki/Comma-separated_values), etc.
 
-Visualizing how much storage space individual nodes take, a large CSV in the `.oxen/versions` directory can be the majority of the space. The pointers and hashes within the tree itself are relatively small.
+To visualize how much storage space individual nodes take, let's look at a large CSV in the `.oxen/versions` directory. The pointers and hashes within the tree itself are relatively small, but the file contents themselves are large.
 
 ![Large CSV](/images/merkle_tree/large_csv.png)
 
@@ -266,7 +266,7 @@ Think back to the key insight that we made earlier about duplicating data betwee
 
 This results in a lot of duplicated data. In fact rows 0-1,000,000 are all the same between Version A and Version B.
 
-To combat this, Oxen uses a technique called file chunk deduplication. Even if your Oxen repo is getting a little "chunky" we can leverage the fact that many of the chunks are the same to slim down the version history. Instead of duplicating the entire raw file in the `.oxen/versions` directory, we can break the file into "chunks" then store these chunks in the `.oxen/chunks` directory. 
+To combat this, Oxen uses a technique called file chunk deduplication. Instead of duplicating the entire raw file in the `.oxen/versions` directory, we can break the file into "chunks" then store these chunks in a content addressable manner. 
 
 ![Chunks](/images/merkle_tree/chunk_a.png)
 
@@ -276,12 +276,15 @@ Then if you update any rows in the file, we create a new chunk for that section 
 
 So the original tree looks like this.
 
-![Chunks](/images/merkle_tree/chunks.png)
+![Chunks](/images/merkle_tree/tree_chunks.png)
 
 Then when the row is added, all we have to do is update the final chunk and propagate the changes up the tree.
 
-![Update Chunk](/images/merkle_tree/chunks_update.png)
+![Update Chunk](/images/merkle_tree/tree_chunks_update.png)
 
+What's great about this, is now we also only need to sync the chunks that have changed over the network and not the entire file. Chunks themselves are ~16kb in size, so updating a single value in a 1GB file will only sync this small portion of the file.
+
+When swapping between versions we simply reconstruct the chunks associated with each file and write them to disk. This means we need one more small db that stores the mapping from chunk_idx -> chunk_hash. We can store this in the `.oxen/versions` directory instead of the file contents, saving space!
 
 ## Benefits of the Merkle Tree
 
