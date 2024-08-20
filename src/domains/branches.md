@@ -11,7 +11,7 @@ pub struct Branch {
 }
 ```
 
-When a repository is first initialized with `oxen init`, a single commit is made and a branch is created called `main` that points to it.
+On the first commit of a repository, a default branch called `main` is created and points to the initial commit.
 
 # Refs
 
@@ -100,7 +100,7 @@ You can checkout a specific commit by using the `oxen checkout` command with the
 $ oxen checkout c719c887cc250784
 ```
 
-This will update the `HEAD` file to point to the commit id instead of the branch name. 
+This will update the `HEAD` file to point to the commit id instead of the branch name.
 
 ```bash
 $ cat .oxen/HEAD
@@ -122,6 +122,6 @@ You can progress a branch as many commits as you want without affecting the main
 
 # Next Up: Files & Directories
 
-Now that you know the basic data structures for branches and commits, let's dive into how branches and commits are tied to a set of files and directories.
+Now that you know the basic data structures for branches and commits, let's dive into how branches and commits are tied to a set of files and directories with the Merkle Tree data structure.
 
-Next Up: [Files & Directories](/domains/objects.md)
+Next Up: [Merkle Trees](/domains/merkle_trees.md)

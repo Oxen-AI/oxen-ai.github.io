@@ -24,38 +24,38 @@ oxen add images/
 oxen commit -m "adding data"
 ```
 
-On commit we save off all the hashes of the file contents and save the data into a Content Addressable File System (CAFS) within the `.oxen/versions` directory. This makes it so we don't duplicate the same file data across commits. 
+On commit we save off all the hashes of the file contents and save the data into a Content Addressable File System (CAFS) within the `.oxen/versions` directory. This makes it so we don't duplicate the same file data across commits.
 
 ```bash
-$ tree .oxen/versions/files/
+$ tree .oxen/versions/
 
-.oxen/versions/files/
+.oxen/versions/
 ├── 43
 │   └── 94f02b679bcf0114b1fb631c250d0a
-│       └── data.jpg
+│       └── data
 ├── 58
 │   └── 8b7f5296c1a6041d350d1f6be41b3
-│       └── data.jpg
+│       └── data
 ├── 64
 │   └── e1a1512c6d5b1b6dcf2122326370f1
-│       └── data.md
+│       └── data
 ├── 74
 │   └── bfd17b6b7c9b183878a26e1e62a30e
-│       └── data.jpg
+│       └── data
 ├── 7c
 │   └── 42afd26e73b8bfbc798288f1def1ed
 │       └── data
 ├── c8
 │   └── 2d11a1e1223598d930454eecfab6ea
-│       └── data.jpg
+│       └── data
 └── dc
     └── 92962a4b05f5453718783fe3fc4b10
-        └── data.jpg
+        └── data
 
 15 directories, 7 files
 ```
 
-Each file is accessible by its hash and original extension the file was stored with. For example, the hash of `images/image0.jpg` is `74bfd17b6b7c9b183878a26e1e62a30e` and it's extension is `jpg`, so the original contents can be found at `.oxen/versions/files/74/bfd17b6b7c9b183878a26e1e62a30e/data.jpg`.
+Each file is accessible by its hash and original extension the file was stored with. For example, the hash of `images/image0.jpg` is `74bfd17b6b7c9b183878a26e1e62a30e` and it's extension is `jpg`, so the original contents can be found at `.oxen/versions/74/bfd17b6b7c9b183878a26e1e62a30e/data`.
 
 To find the hash and extension of any file in a commit, you can use the `oxen info` command.
 
@@ -66,7 +66,7 @@ oxen info images/image0.jpg
 
 The CAFS makes it easy to fetch the file data for a given commit, but we need some sort of database that lists the original file names and paths. This way when switching between commits we can efficiently restore the files that have been added/changed/removed.
 
-# Naive Implementation
+# Switching Between Versions
 
 The simplest solution would be to have a key-value database for every commit that listed the file paths and pointed to their hashes and extensions.
 
@@ -89,7 +89,7 @@ Psuedo Code:
 ```bash
 set commit_hash 1d278f841510b8e7
 rm -rf working_dir
-for dir, hash, ext in (oxen db list .oxen/versions/files/$commit_hash/) ; 
+for dir, hash, ext in (oxen db list .oxen/versions/files/$commit_hash/) ;
   mkdir -p working_dir/$dir ;
   cp .oxen/versions/files/$commit_hash/$hash/data$ext working_dir/$dir/ ;
 end
@@ -104,7 +104,7 @@ Of course, we are not here to build naive inefficient version control tool. Oxen
 To see why this naive approach is sub-optimal, imagine we are collecting image training data for a computer vision system. We put Oxen in a loop adding one new image at a time to the `images/` directory. Each time we add an image we commit the changes.
 
 ```fish
-for i in (seq 100) ; 
+for i in (seq 100) ;
   # imaginary data collection pipeline
   cp /path/to/images/image$i.jpg images/image$i.jpg ;
 
@@ -184,11 +184,11 @@ A key observation is that we are duplicating a lot of data across commits. This 
 
 # Optimizations w/ Merkle Trees
 
-Adding one file should not require to you copy the duplicate all the file paths and hashes from the previous commit. We need some sort of data structure that can efficiently store the file paths and hashes without duplicating too much data across commits.
+Adding one file should not require to you copy the entire key-value database. We need some sort of data structure that can efficiently store the file paths and hashes without duplicating too much data across commits.
 
 Enter [Merkle Trees](https://en.wikipedia.org/wiki/Merkle_tree) 🌲.
 
-Files and directories are already organized in a tree like fashion, so a Merkle Tree is a more natural fit for storing and traversing the file structure to begin with. The Oxen Merkle Tree implementation also makes it so when we add additional data, we only need to copy subtrees instead of copying the entire database for each commit.
+Files and directories are already organized in a tree like fashion, so a Merkle Tree is a more natural fit for storing and traversing the file structure to begin with. The Oxen Merkle Tree implementation also make it so when we add additional data, we only need to copy subtrees instead of copying the entire database for each commit.
 
 What does a Merkle Tree within Oxen look like?
 
@@ -196,41 +196,32 @@ What does a Merkle Tree within Oxen look like?
 
 At the root node of the Merkle tree is a commit hash. This is the identifier you know and love which you can reference any commit in the system by.
 
-Merkle trees hashes are constructed by recursively combining hashes of the nodes below it. Each file and directory in our tree gets it's own hash based on it's content. There are some intermediate nodes that we will dive into detail later, but for now think of a directory hash as the combination of the hashes of all the files and directories within it.
+The root commit hash represents the content of all the data below it, including the files contained in the `images/` directory as well as the files directly in the `.` root directory (README.md, LICENSE, etc). Additionally all the files within a directory get sectioned off into VNodes. We will return to the importance of VNodes in a bit.
 
-## Printing a Merkle Tree
+At each level of the tree we see the contents of all the files hashed within that directory, and bucketed into VNodes.
 
-Oxen has a convenient command that prints out the Merkle Tree for a given commit if you need to debug or simply are curious.
+## Adding a File
 
-```
-oxen tree
-```
+To see what happens when we add a new file to our repository, let's revisit our previous example of adding images to the `images/` directory. Say we have 8 images in our `images/` directory and we want to add a new image (9.jpg).
 
-TODO: add terminal outputs
+The first thing we have to do is find which VNode bucket it falls into (more on this later). Then we can recompute the hash of this subtree, and recursively update the hashes above it until we get to the root node.
 
-## Sharing Nodes Between Commits
+In this case we make four total updates to the tree, highlighted in green.
 
-The trick we are going to use to reduce storage is to share tree nodes between commits. This means only updating and copying sub-trees that have changed.
-
-For example, say we have a repository with a `README.md` and `LICENSE` and the root, plus 8 images in the `images/` directory. If we only modify the `README.md` between Commit A and Commit B, there is no need to recompute hashes and copy pointers to all the files in the `images/` directory.
-
-![Commit README](/images/merkle_tree/commit_modify_readme.png)
-
-The node for `images/` is shared between Commit A and Commit B, but we make a new copy of the node for the `README.md` and `LICENSE` for Commit B.
-
-As another example, what if we want to add image `9.jpg` to the `images/` directory?
+1. Add the contents of the new image to our `.oxen/versions/` directory
+2. Find the VNode it belongs to, and deep copy it to a new VNode with a new hash
+3. Update the VNode hash of the `images/` parent directory
+4. Update the root node hash
 
 ![Commit B](/images/merkle_tree/commit_b.png)
 
-In this case, since there are potentially many images in the directory, there is one more level of bucketing. We refer to these intermediate buckets as "VNodes" (more on this later). The first thing we have to do is find which VNode bucket it falls into, then we can recompute the hash of this subtree. We then recursively update the hashes above it until we get to the root node. VNodes are kept relatively small to limit the number of copies of these pointers and their hashes.
+The Merkle Tree nodes are all global to the repository, and can get re-used and shared between commits. Instead of copying the entire database to our new commit, only copy the subtrees that changed. On adding a file, we only need to update a single VNode and copy it's contents. This is a much faster operation than copying every file within our databases.
 
-When adding the image in our subdirectory, we perform one deep copy of the leaf VNode database, add the image pointer to the list of pointers. Then we recursively deep copy and update the parent nodes until we get to the root node. These copies are kept small since we limit the number of pointers per node.
+For another example, let's see what happens when we update the `README.md` file.
 
-## Storage on Disk
+![Commit C](/images/merkle_tree/commit_c.png)
 
-All tree nodes are stored on disk in the directory `.oxen/tree`. Each node gets it's own directory and database to make it quite fast to read the individual nodes as well as to update and write them.
-
-TODO: Show storage
+This time, we only need to update the VNode that contains the `README.md` file and it's parent in the root node.
 
 ## Why use VNodes?
 
@@ -254,47 +245,99 @@ You'll notice two parts to the VNode. The first is first two letters (`AB`) of t
 
 To drive this home, let's go back to our example directory with 10,000 images with the naive implementation from before. Remember 4 additions to the images directory after it contained 10,000 node resulted in 40,006 values in our database. Say our bucket size for VNodes is 10,000/256 ~= 40. This means on average we are copying 40 values with each commit. This will result in 10,160 total values in our DB instead of 40,006.
 
-# File Chunk Deduplication
+## Printing the Merkle Tree
 
-The Merkle Tree optimizations we've talked about so far make adding and committing snapshots of the directory structure to Oxen snappy. The remainder of the storage cost is at the individual leaf nodes of the tree. We want Oxen to be efficient at storing many files as well as efficient at storing large files. In our context these large files may be data frames of [parquet](https://parquet.apache.org/), [arrow](https://arrow.apache.org/), [jsonl](https://jsonlines.org/), [csv](https://en.wikipedia.org/wiki/Comma-separated_values), etc.
+To bring these concepts to life, let's create a repo of many images and use the `oxen tree` command to print the Merkle Tree. In the [Oxen-AI/Oxen](https://github.com/Oxen-AI/Oxen) repo we have a [script](https://github.com/Oxen-AI/Oxen/blob/feat/refactor-merkle-tree/benchmark/generate_image_repo_parallel.py) that will create a directory with an arbitrary number images and add them to the `images/` directory.
 
-To visualize how much storage space individual nodes take, let's look at a large CSV in the `.oxen/versions` directory. The pointers and hashes within the tree itself are relatively small, but the file contents themselves are large.
+When developing and testing Oxen, this script is handy to generate synthetic datasets to push the performance of the system. For example you could create a dataset of 1,000,000 images and see how long it takes to add and commit the changes.
 
-![Large CSV](/images/merkle_tree/large_csv.png)
+```bash
+# WARNING: This will create a directory with 1,000,000 images and take a while to run
+$ python benchmark/generate_image_repo_parallel.py --output_dir ~/Data/1m_images --num_images 1000000 --num_dirs 2 --image_size 64 64
+```
 
-Remember, so far each time you make a commit, we make an **entire copy** of the file contents itself and put it into the `.oxen/versions` directory under it's hash.
+For this example we will stick to a smaller dataset of 20 images. It will be easier to visualize the Merkle Tree.
 
-![Large CSV](/images/merkle_tree/large_csv_version.png)
+```bash
+# 😌 This will create a much smaller dataset of 20 images
+$ python benchmark/generate_image_repo_parallel.py --output_dir ~/Data/20_images --num_images 20 --num_dirs 1 --image_size 64 64
+```
 
-This can be a problem if we keep updating the same file over over and over again. Five small changes to a 1GB file will result in 5GB of storage.
+After the dataset is created, go ahead and create and initialize an oxen repository.
 
-Think back to the key insight that we made earlier about duplicating data between versions of our tree. The same thing applies to large files. For example - what if you are editing and committing a CSV file one row at a time.
+```bash
+$ cd ~/Data/20_images
+$ oxen init
+```
 
-![Prompts CSV](/images/merkle_tree/prompts_csv.png)
+Before we add and commit the files, we are going to make a quick tweak to the configuration to use a smaller VNode bucket size. The default size is 10,000, but we are going to set it to 5 to make it easier to see the tree updates in this toy example.
 
-This results in a lot of duplicated data. In fact rows 0-1,000,000 are all the same between Version A and Version B.
+Edit the `.oxen/config.toml` file to set the `vnode_size` to 5.
 
-To combat this, Oxen uses a technique called file chunk deduplication. Instead of duplicating the entire raw file in the `.oxen/versions` directory, we can break the file into "chunks" then store these chunks in a content addressable manner. 
+```bash
+$ cat .oxen/config.toml
+remotes = []
+min_version = "0.19.0"
+vnode_size = 5
+```
 
-![Chunks](/images/merkle_tree/chunk_a.png)
+Now add and commit the files.
 
-Then if you update any rows in the file, we create a new chunk for that section and update the leaf nodes of the tree.
+```bash
+$ oxen add .
+$ oxen commit -m "adding all data"
+```
 
-![Chunks](/images/merkle_tree/chunks_a_b.png)
+Then we can use the `oxen tree` command to print the entire Merkle Tree.
 
-So the original tree looks like this.
+```bash
+$ oxen tree
 
-![Chunks](/images/merkle_tree/tree_chunks.png)
+[Commit] 74aca3bd3a054a1b6942d7147acc2bf6 "adding all data" -> oxbot oxbot@oxen.ai parent_ids ""
+  [Dir] 1757ac6ba211ae1e4358d8c44680bea5 "/" (249.3 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)  (1 children)
+    [VNode] 38816acec756eafbe48f6a5cba657674  (3 children)
+      [File] 5d7a6a26b0b17ad87c3f36371a9bd93e "README.md" (94 B) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
+      [Dir] 45b852358f6cdd11c91954308438a755 "images/" (248.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)  (1 children)
+        [VNode] 51d73f367fcbc4f11228ff2e56fba5d3  (1 children)
+          [Dir] b5476c6d51912a0cc92c42731f911daa "split_0/" (248.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)  (4 children)
+            [VNode] b68405755cb1df9013179d9a4335ca40  (4 children)
+              [File] 972e687faf79cdecb664ebc209697c14 "noise_image_11.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
+              [File] 77c021dee25a830e685732af12e323c "noise_image_16.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
+              [File] 8ce4938cda72499ffc23765164fd509c "noise_image_5.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
+              [File] 46dcd32fb5291b4ab6d086de436afc80 "noise_image_6.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
+            [VNode] 1076ef1f91029e450bf032155babad3a  (6 children)
+              [File] c8ebf33631c8a32871d456eaf72ca1c1 "noise_image_10.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
+              [File] b09dfdbac89ab19829f936a6a06e1195 "noise_image_13.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
+              [File] 5d99153957263ffa0fed8f8a9ffcd0f1 "noise_image_2.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
+              [File] eaf4c6ec29b1d45c708022f5ae1c0381 "noise_image_3.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
+              [File] a7cc0395867948f39c294b0c4a5191e9 "noise_image_7.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
+              [File] 6dcf57a3d176dc6250fd388d500b5531 "noise_image_8.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
+            [VNode] 21a5b3f9b84f58acdcbc94f37b814891  (6 children)
+              [File] 15ae7d77e0b982b09be03e441c9b4482 "noise_image_0.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
+              [File] 297a0d822aa0a96b8718878d72dc3f72 "noise_image_12.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
+              [File] d84a22565ab4043194d309e1f2e8c8a2 "noise_image_14.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
+              [File] 83bb0071a97c4e1fe0ff4e15f0f2e08e "noise_image_15.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
+              [File] e61e34301aa386993a8d2fa3fb01026 "noise_image_19.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
+              [File] 38d2ac88aec48eb0ff824cb5abce113e "noise_image_4.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
+            [VNode] 8bf5b6bd09d16fc21570047b3c9f2fa  (4 children)
+              [File] 252e277e354f5f23c8263b8219769037 "noise_image_1.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
+              [File] 5a884a34616843a937e6f5827c2be2ef "noise_image_17.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
+              [File] 68c7d34745eea11ec7dfd7813ee3d167 "noise_image_18.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
+              [File] 934cb1d0118b7ed5870a62a9a808e3ab "noise_image_9.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
+      [File] 251bf004b024bc93ccd989534dfdc683 "images.csv" (764 B) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
+```
 
-Then when the row is added, all we have to do is update the final chunk and propagate the changes up the tree.
+The first thing you'll notice is that each VNode is not guaranteed to have 5 children. This is because we first instantiate the number of VNodes given the VNode size, and then we fill them with the files. The hashing algorithm will then distribute the files across the VNodes given the `file hash % number of VNodes` and some VNodes will end up with more children than others. On average a good hashing algorithm will distribute the files evenly across the VNodes.
 
-![Update Chunk](/images/merkle_tree/tree_chunks_update.png)
+Remember - VNodes exist in order to help us update smaller subtrees when we add, remove or change a file. To see this in action, let's add a new image to the `images/split_0` directory by converting a png to jpeg.
 
-What's great about this, is now we also only need to sync the chunks that have changed over the network and not the entire file. Chunks themselves are ~16kb in size, so updating a single value in a 1GB file will only sync this small portion of the file.
+```
+ffmpeg -i images/split_0/noise_image_11.png images/split_0/noise_image_11.jpg
+oxen add images/split_0/noise_image_11.jpg
+oxen commit -m "adding images/split_0/noise_image_11.jpg"
+```
 
-When swapping between versions we simply reconstruct the chunks associated with each file and write them to disk. This means we need a small db that stores the mapping from chunk_idx -> chunk_hash. We can now store this in the `.oxen/versions` directory instead of the file contents.
-
-![Chunk Mapping](/images/merkle_tree/chunk_mapping.png)
+TODO: Show the tree before and after the commit.
 
 ## Benefits of the Merkle Tree
 
@@ -306,5 +349,5 @@ Hopefully if you are new to Merkle Trees, this should give you a good intuition 
 
 3. We can use it to understand the small chunks of the data that changes when transferring over the network when syncing repositories.
 
-4. Since each subtree is also a merkle tree, this will allow us to clone small subtrees, make changes, and push them back up to the parent. This can be powerful when you only want to update the README for example but have a large binary file attached.
+4. Since each subtree is also a merkle tree, this will allow us to clone small subtrees, make changes, and push them back up to the parent. This can be powerful when you only want to update the README for example but have a directory of images you are not planning on changing.
 

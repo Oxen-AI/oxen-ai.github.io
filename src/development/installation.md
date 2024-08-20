@@ -1,7 +1,7 @@
 
 # 🧑‍💻 Installation
 
-How to install the Oxen client, server, or python package. If you are a developer, you will want to [build from source](#building-from-source). If you are flying by and learning Oxen you can install the python package or the command line tool from the [GitHub releases page](https://github.com/Oxen-AI/Oxen/releases).
+How to install the Oxen client, server, or python package. If you are a developer, you will want to [build from source](build_and_run.md). If you are flying by and learning Oxen you can install the python package or the command line tool from the [GitHub releases page](https://github.com/Oxen-AI/Oxen/releases).
 
 ## 💻 Command Line Tools
 

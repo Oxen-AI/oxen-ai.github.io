@@ -38,7 +38,7 @@ Take advantage of existing file formats such as arrow, parquet, duckdb, etc. Unl
 
 For example, apache arrow is a memory mapped file that makes random access to rows very fast. If we were to compress this data and reconstruct it we would lose the benefits of the memory mapped file.
 
-This is a design tradeoff that is made throughout oxen which makes it less efficient in terms of storage on disk, but easier to integrate with. 
+This is a design tradeoff that is made throughout oxen which makes it less efficient in terms of storage on disk, but easier to integrate with.
 
 Visibility into data is a key design goal of Oxen. Visibility means speed for data to be visible as well, and the less assumptions we make here, the more we can leverage and extend existing file formats.
 
@@ -57,12 +57,12 @@ Visibility into data is a key design goal of Oxen. Visibility means speed for da
 
 Don't download the entire dataset just to contribute.
 
-* oxen remote add
-* oxen remote commit
-* oxen remote df
-* oxen remote ls
+* oxen workspace add
+* oxen workspace commit
+* oxen workspace df
+* oxen workspace ls
 
 ## Compression (Coming Soon)
 
-* Block level dedup
+* [Block level dedup](domains/file_chunk_deduplication.md)
 * zlib
