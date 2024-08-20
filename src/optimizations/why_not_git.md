@@ -10,6 +10,10 @@ There are extensions to git such as git-LFS that work okay when you have one or 
 
 This section dives into some of the reasons why we did not want to use Git-LFS and wrote an entire VCS from scratch.
 
+# What git is missing (could be a good blog post title)
+
+lorem ipsum...
+
 # LFS is More Complexity
 
 The first reason is purely the mental model users have to keep in their head. 
@@ -19,6 +23,16 @@ To quote [Gregory Szorc](https://gregoryszorc.com/blog/2021/05/12/why-you-should
 *"LFS is more complex for Git end users.*
 
 *Git users have to install, configure, and sometimes know about the existence of Git LFS. Version control should just work. Large file handling should just work. End-users shouldn't have to care that large files are handled slightly differently from small files."*
+
+# Push / Pull Bottleneck
+
+How do I atomically add one file without pulling everything? Even further...how do I modify one row or column?
+
+Ex) you update test.csv, I update README.md, we can both push without worrying about pulling first.
+
+Ex) Updating data frame directly with duckdb
+
+Do we call this a VCS-DB or some new term? Allows for higher throughput writes while allowing you to snapshot and diff and query the history.
 
 # Network Protocols
 
