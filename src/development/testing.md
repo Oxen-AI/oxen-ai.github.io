@@ -2,30 +2,32 @@
 
 We are all smart software engineers, but when it comes to entering a new codebase we all want confidence that making a change doesn't have a cascading effect. It is important to make sure that turning off the (proverbial) lights in the kitchen 💡 doesn't make the roof collapse 🏠.
 
-Luckily each command within Oxen has a well defined interface, and each command can be tested independently. 
+Luckily each command within Oxen has a well defined interface, and each command can be tested independently.
 
 For example:
 
 ```rust
 // Initialize Repo
-let repo = command::init("./test_repo")?;
+let repo = repositories::init("./test_repo")?;
 // Add File
-command::add(&repo, &"hello.txt")?;
+repositories::add(&repo, &"hello.txt")?;
 // Commit File
-command::commit(&repo, &"add hello.txt")?;
+repositories::commit(&repo, &"add hello.txt")?;
 ```
 
 We chain these commands together into a sequence of integration and unit tests to make sure the end to end system works as expected.
 
 # Writing Tests
 
-The best place to reference when looking at tests within Oxen are the `lib/src/command` modules themselves. You'll find some familiar names within the `command::` namespace.
+The best place to reference when looking at tests within Oxen are the `lib/src/repositories` modules themselves. You'll find some familiar names within the `repositories::` namespace.
 
 For example:
 
-- [command::init](https://github.com/Oxen-AI/Oxen/blob/main/src/lib/src/command/init.rs)
-- [command::add](https://github.com/Oxen-AI/Oxen/blob/main/src/lib/src/command/add.rs)
-- [command::commit](https://github.com/Oxen-AI/Oxen/blob/main/src/lib/src/command/commit.rs)
+- [repositories::init](https://github.com/Oxen-AI/Oxen/blob/main/src/lib/src/repositories/init.rs)
+- [repositories::add](https://github.com/Oxen-AI/Oxen/blob/main/src/lib/src/repositories/add.rs)
+- [repositories::commit](https://github.com/Oxen-AI/Oxen/blob/main/src/lib/src/repositories/commit.rs)
+
+We follow a Domain Driven Design approach to development. The tests are located within the same module as the code they are testing. Checkout all the domain objects [here](/domains.md).
 
 All tests for these commands are found below their respective module. Let's look at an example command and break down the different parts of the test.
 
@@ -35,10 +37,10 @@ mod tests {
     // ... include necessary modules
 
     #[test]
-    fn test_command_init() -> Result<(), OxenError> {
+    fn test_repositories_init() -> Result<(), OxenError> {
         test::run_empty_dir_test(|repo_dir| {
             // Init repo
-            let repo = command::init(repo_dir)?;
+            let repo = repositories::init(repo_dir)?;
 
             // Init should create the .oxen directory
             let hidden_dir = util::fs::oxen_hidden_dir(repo_dir);
@@ -57,10 +59,10 @@ First you will notice that the tests are within a `mod tests` block. This is a R
 In order to run all the tests within a particular command module you can run:
 
 ```bash
-cargo test --lib command::init
+cargo test --lib repositories::init
 ```
 
-This will run all the tests within the `command::init` module.
+This will run all the tests within the `repositories::init` module.
 
 # Returning Errors
 
@@ -80,7 +82,7 @@ test::run_empty_dir_test(|repo_dir| {
 })
 ```
 
-These closures takes care of a lot of the boiler plate around setting up a test directory, and deleting it after the test is run. 
+These closures takes care of a lot of the boiler plate around setting up a test directory, and deleting it after the test is run.
 
 For example `run_empty_dir_test` will pass a unique directory to the closure, and delete it when finished. This way we can run all the isolated tests in parallel and not worry about leaking files from one test impacting another.
 

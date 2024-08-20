@@ -1,6 +1,6 @@
 # Repositories
 
-When we talk about data in Oxen, we usually talk about "Repositories". A Repository lives within your working directory of data in a hidden `.oxen` directory. You can think of a Repository as a series of snapshots of your data at any given point in time. 
+When we talk about data in Oxen, we usually talk about "Repositories". A Repository lives within your working directory of data in a hidden `.oxen` directory. You can think of a Repository as a series of snapshots of your data at any given point in time.
 
 ![File Versions](/images/versions.png)
 
@@ -42,15 +42,15 @@ $ tree .oxen/versions
 └── files
     ├── 18
     │   └── 066113d946cfa640ffc8773c83f61b
-    │       └── data.txt
+    │       └── data
     └── a7
         └── 666c8f5aaf946ca629d9d20c29aa6a
-            └── data.txt
+            └── data
 
 6 directories, 2 files
 ```
 
-What's up with these funky hexadecimal directory names? Well each directory is a [xxHash](optimizations/hashing.md) of the file. To see this in action, Oxen has a handy command to inspect information about an individual file.
+What's up with these funky hexadecimal directory names? Well each directory is a [hash](optimizations/hashing.md) of the file. To see this in action, Oxen has a handy command to inspect information about an individual file.
 
 ```bash
 oxen info -v world.txt
@@ -59,7 +59,7 @@ hash	size	data_type	mime_type	extension	last_updated_commit_id
 18066113d946cfa640ffc8773c83f61b	6	text	text/plain	txt	2c610ae8e424a4c8
 ```
 
-`oxen info` prints out a tab separated list of the hash, size, data type, mime type, extension, and the last updated commit id of the file. 
+`oxen info` prints out a tab separated list of the hash, size, data type, mime type, extension, and the last updated commit id of the file.
 
 In this case, the hash for the `world.txt` file is `18066113d946cfa640ffc8773c83f61b`. As for the directory structure above, you can see we split the hash and use the first two characters (`18`) of the hash as a prefix to the directory name. This is a common pattern in content addressable file systems to make sure you do not have too many sub-directories in a single directory.
 
@@ -68,7 +68,7 @@ In this case, the hash for the `world.txt` file is `18066113d946cfa640ffc8773c83
 Currently the files in Oxen are uncompressed in the versions directory, so you can simply `cat` the file to see the contents.
 
 ```bash
-$ cat .oxen/versions/files/a7/666c8f5aaf946ca629d9d20c29aa6a/data.txt
+$ cat .oxen/versions/files/a7/666c8f5aaf946ca629d9d20c29aa6a/data
 
 Hello
 ```
@@ -94,13 +94,13 @@ $ tree .oxen/versions
 └── files
     ├── 18
     │   └── 066113d946cfa640ffc8773c83f61b
-    │       └── data.txt
+    │       └── data
     ├── a7
     │   └── 666c8f5aaf946ca629d9d20c29aa6a
-    │       └── data.txt
+    │       └── data
     └── ce
         └── 1931b6136c7ad3e2a42fb0521986ba
-            └── data.txt
+            └── data
 
 8 directories, 3 files
 ```
@@ -108,13 +108,13 @@ $ tree .oxen/versions
 Let's look at each individual file in the versions dir.
 
 ```bash
-$ cat .oxen/versions/files/a7/666c8f5aaf946ca629d9d20c29aa6a/data.txt
+$ cat .oxen/versions/files/a7/666c8f5aaf946ca629d9d20c29aa6a/data
 Hello
 
-$ cat .oxen/versions/files/18/066113d946cfa640ffc8773c83f61b/data.txt
+$ cat .oxen/versions/files/18/066113d946cfa640ffc8773c83f61b/data
 World
 
-$ cat .oxen/versions/files/ce/1931b6136c7ad3e2a42fb0521986ba/data.txt
+$ cat .oxen/versions/files/ce/1931b6136c7ad3e2a42fb0521986ba/data
 Hello, World!
 ```
 
@@ -229,7 +229,7 @@ oxen push
 This copies all the data from the local .oxen directory to the remote repository. Remember the versions directory from before? Let's see what it looks like on the remote.
 
 ```bash
-$ cat /path/to/sync/dir/my-namespace/my-repo/.oxen/versions/files/ce/1931b6136c7ad3e2a42fb0521986ba/data.txt
+$ cat /path/to/sync/dir/my-namespace/my-repo/.oxen/versions/files/ce/1931b6136c7ad3e2a42fb0521986ba/data
 Hello, World!
 ```
 
