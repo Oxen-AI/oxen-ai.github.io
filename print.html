@@ -1168,55 +1168,93 @@ $ oxen init
 <pre><code class="language-bash">$ cat .oxen/config.toml
 remotes = []
 min_version = "0.19.0"
-vnode_size = 5
+vnode_size = 6
 </code></pre>
 <p>Now add and commit the files.</p>
 <pre><code class="language-bash">$ oxen add .
 $ oxen commit -m "adding all data"
 </code></pre>
 <p>Then we can use the <code>oxen tree</code> command to print the entire Merkle Tree.</p>
-<pre><code class="language-bash">$ oxen tree
+<pre><code>$ oxen tree
 
-[Commit] 74aca3bd3a054a1b6942d7147acc2bf6 "adding all data" -&gt; oxbot oxbot@oxen.ai parent_ids ""
-  [Dir] 1757ac6ba211ae1e4358d8c44680bea5 "/" (249.3 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)  (1 children)
-    [VNode] 38816acec756eafbe48f6a5cba657674  (3 children)
-      [File] 5d7a6a26b0b17ad87c3f36371a9bd93e "README.md" (94 B) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
-      [Dir] 45b852358f6cdd11c91954308438a755 "images/" (248.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)  (1 children)
+[Commit] bb2e7778ddc8f40788d4d34993955bfd "adding data" -&gt; Bessie ox@oxen.ai parent_ids ""
+  [Dir] 7a892f11ae586978f3b170182599cc5e "/" (15.8 MB) (22 files) (commit bb2e7778ddc8f40788d4d34993955bfd)  (1 children)
+    [VNode] 801de12b06a74b5a2d0b978af067e32b  (3 children)
+      [File] dcd78180c335f3afed68656b6b12c248 "README.md" (98 B) (commit bb2e7778ddc8f40788d4d34993955bfd)
+      [Dir] 73ae655940b4873cf6b1557c3806d65c "images/" (15.8 MB) (20 files) (commit bb2e7778ddc8f40788d4d34993955bfd)  (1 children)
         [VNode] 51d73f367fcbc4f11228ff2e56fba5d3  (1 children)
-          [Dir] b5476c6d51912a0cc92c42731f911daa "split_0/" (248.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)  (4 children)
-            [VNode] b68405755cb1df9013179d9a4335ca40  (4 children)
-              [File] 972e687faf79cdecb664ebc209697c14 "noise_image_11.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
-              [File] 77c021dee25a830e685732af12e323c "noise_image_16.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
-              [File] 8ce4938cda72499ffc23765164fd509c "noise_image_5.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
-              [File] 46dcd32fb5291b4ab6d086de436afc80 "noise_image_6.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
-            [VNode] 1076ef1f91029e450bf032155babad3a  (6 children)
-              [File] c8ebf33631c8a32871d456eaf72ca1c1 "noise_image_10.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
-              [File] b09dfdbac89ab19829f936a6a06e1195 "noise_image_13.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
-              [File] 5d99153957263ffa0fed8f8a9ffcd0f1 "noise_image_2.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
-              [File] eaf4c6ec29b1d45c708022f5ae1c0381 "noise_image_3.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
-              [File] a7cc0395867948f39c294b0c4a5191e9 "noise_image_7.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
-              [File] 6dcf57a3d176dc6250fd388d500b5531 "noise_image_8.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
-            [VNode] 21a5b3f9b84f58acdcbc94f37b814891  (6 children)
-              [File] 15ae7d77e0b982b09be03e441c9b4482 "noise_image_0.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
-              [File] 297a0d822aa0a96b8718878d72dc3f72 "noise_image_12.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
-              [File] d84a22565ab4043194d309e1f2e8c8a2 "noise_image_14.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
-              [File] 83bb0071a97c4e1fe0ff4e15f0f2e08e "noise_image_15.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
-              [File] e61e34301aa386993a8d2fa3fb01026 "noise_image_19.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
-              [File] 38d2ac88aec48eb0ff824cb5abce113e "noise_image_4.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
-            [VNode] 8bf5b6bd09d16fc21570047b3c9f2fa  (4 children)
-              [File] 252e277e354f5f23c8263b8219769037 "noise_image_1.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
-              [File] 5a884a34616843a937e6f5827c2be2ef "noise_image_17.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
-              [File] 68c7d34745eea11ec7dfd7813ee3d167 "noise_image_18.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
-              [File] 934cb1d0118b7ed5870a62a9a808e3ab "noise_image_9.png" (12.4 KB) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
-      [File] 251bf004b024bc93ccd989534dfdc683 "images.csv" (764 B) (commit 74aca3bd3a054a1b6942d7147acc2bf6)
+          [Dir] 79c6625dcad70d16be56aca9426442ee "split_0/" (15.8 MB) (20 files) (commit bb2e7778ddc8f40788d4d34993955bfd)  (4 children)
+            [VNode] 3543cada59e52d3a391603661b6f9721  (6 children)
+              [File] 6d11185298ec825208a1f3fce23b9d6c "noise_image_14.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] 56e2d45af9958af0680fceb3ab00d18c "noise_image_17.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] 82c2ec408abf2defc2dd5289b29a1e80 "noise_image_19.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] 1d952254a3be50f3d2d70a1398aee524 "noise_image_4.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] cb118df353e0814d42472818405b9384 "noise_image_7.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] 2ccc49262256aae9802c581d90736b34 "noise_image_9.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+            [VNode] e5529567f3246881d58335ee5102281c  (4 children)
+              [File] 38593fea717a1d4c2e771674ebc9ca81 "noise_image_0.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] d0871bf54a0c99f2336da66ab20b6785 "noise_image_1.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] e406e9a852da65dad3f012dd86a98919 "noise_image_10.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] 48dca231fd96fd847935e7e6623b32d9 "noise_image_11.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+            [VNode] c9e4baf0332cf23a803a8870e295e0b5  (7 children)
+              [File] abf629ca6ed9414e8a4f884d2f98dd2a "noise_image_13.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] 4598fdac03e5aaa52aa5cd1c51231a2 "noise_image_15.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] 3e0989396c1d6a7f38164faf96c4662e "noise_image_18.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] 1506f02a6a10123af68084200b67583a "noise_image_2.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] 1d72a37baeef7b0c02b4ce7482e4592 "noise_image_5.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] 26e656316e9e292f8b27fcb49654237a "noise_image_6.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] 4f3611ebc27072c6359ac05f4e6c98e "noise_image_8.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+            [VNode] 38c8edc066ae7d1ac36a92223a9c39ee  (3 children)
+              [File] 6dc552a73f1beb27356903f84c4a7b33 "noise_image_12.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] 9335d768de6058fbe3da1a7857c400e7 "noise_image_16.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] 4855043d603912f6141f5f148851146f "noise_image_3.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+      [File] fe0b2b028ff23fd726b14f6c7694ffd8 "images.csv" (764 B) (commit bb2e7778ddc8f40788d4d34993955bfd)
 </code></pre>
-<p>The first thing you'll notice is that each VNode is not guaranteed to have 5 children. This is because we first instantiate the number of VNodes given the VNode size, and then we fill them with the files. The hashing algorithm will then distribute the files across the VNodes given the <code>file hash % number of VNodes</code> and some VNodes will end up with more children than others. On average a good hashing algorithm will distribute the files evenly across the VNodes.</p>
+<p>The first thing you'll notice is that each VNode is not guaranteed to have 6 children. This is because we first instantiate the number of VNodes given the VNode size, and then we fill them with the files. The hashing algorithm will then distribute the files across the VNodes given the <code>file hash % number of VNodes</code> and some VNodes will end up with more children than others. On average a good hashing algorithm will distribute the files evenly across the VNodes.</p>
 <p>Remember - VNodes exist in order to help us update smaller subtrees when we add, remove or change a file. To see this in action, let's add a new image to the <code>images/split_0</code> directory by converting a png to jpeg.</p>
 <pre><code>ffmpeg -i images/split_0/noise_image_11.png images/split_0/noise_image_11.jpg
 oxen add images/split_0/noise_image_11.jpg
 oxen commit -m "adding images/split_0/noise_image_11.jpg"
 </code></pre>
-<p>TODO: Show the tree before and after the commit.</p>
+<p>Then print the tree again, and try to find where the new image was added.</p>
+<pre><code>$ oxen tree
+
+[Commit] 1382a90346dce99134fbb8a7359d81df "adding images/split_0/noise_image_11.jpg" -&gt; Bessie ox@oxen.ai parent_ids "bb2e7778ddc8f40788d4d34993955bfd"
+  [Dir] 73aa45daae11e300cb452b072f22bc3a "/" (16.0 MB) (23 files) (commit 1382a90346dce99134fbb8a7359d81df)  (1 children)
+    [VNode] 57e2282b08cfdb57c66d5c2c0341fc2d  (3 children)
+      [File] dcd78180c335f3afed68656b6b12c248 "README.md" (98 B) (commit bb2e7778ddc8f40788d4d34993955bfd)
+      [Dir] 7363444d86e0cb47c4247bd7f05c13f3 "images/" (16.0 MB) (21 files) (commit 1382a90346dce99134fbb8a7359d81df)  (1 children)
+        [VNode] 8344a2ef7c01c891fb33a357efabc2b6  (1 children)
+          [Dir] b5d819fd018381b3026848bed854830b "split_0/" (16.0 MB) (21 files) (commit 1382a90346dce99134fbb8a7359d81df)  (4 children)
+            [VNode] 3543cada59e52d3a391603661b6f9721  (6 children)
+              [File] 6d11185298ec825208a1f3fce23b9d6c "noise_image_14.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] 56e2d45af9958af0680fceb3ab00d18c "noise_image_17.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] 82c2ec408abf2defc2dd5289b29a1e80 "noise_image_19.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] 1d952254a3be50f3d2d70a1398aee524 "noise_image_4.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] cb118df353e0814d42472818405b9384 "noise_image_7.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] 2ccc49262256aae9802c581d90736b34 "noise_image_9.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+            [VNode] e5529567f3246881d58335ee5102281c  (4 children)
+              [File] 38593fea717a1d4c2e771674ebc9ca81 "noise_image_0.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] d0871bf54a0c99f2336da66ab20b6785 "noise_image_1.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] e406e9a852da65dad3f012dd86a98919 "noise_image_10.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] 48dca231fd96fd847935e7e6623b32d9 "noise_image_11.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+            [VNode] c9e4baf0332cf23a803a8870e295e0b5  (7 children)
+              [File] abf629ca6ed9414e8a4f884d2f98dd2a "noise_image_13.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] 4598fdac03e5aaa52aa5cd1c51231a2 "noise_image_15.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] 3e0989396c1d6a7f38164faf96c4662e "noise_image_18.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] 1506f02a6a10123af68084200b67583a "noise_image_2.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] 1d72a37baeef7b0c02b4ce7482e4592 "noise_image_5.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] 26e656316e9e292f8b27fcb49654237a "noise_image_6.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] 4f3611ebc27072c6359ac05f4e6c98e "noise_image_8.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+            [VNode] 88e4003b65f2f3f16c16a91230593746  (4 children)
+              [File] 6550c5d7deaa62dbb78d8effbbda375f "noise_image_11.jpg" (285.4 KB) (commit 1382a90346dce99134fbb8a7359d81df)
+              [File] 6dc552a73f1beb27356903f84c4a7b33 "noise_image_12.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] 9335d768de6058fbe3da1a7857c400e7 "noise_image_16.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+              [File] 4855043d603912f6141f5f148851146f "noise_image_3.png" (788.1 KB) (commit bb2e7778ddc8f40788d4d34993955bfd)
+      [File] fe0b2b028ff23fd726b14f6c7694ffd8 "images.csv" (764 B) (commit bb2e7778ddc8f40788d4d34993955bfd)
+</code></pre>
+<p>You will see that the vnode <code>88e4003b65f2f3f16c16a91230593746</code> is the one that contains the new image. The other VNode's have not changed. As a result, we only had to make a copy of a single node with 3 children instead of 20.</p>
+<p>When you get into larger directories, there is a trade off between number of vnodes and the size of the vnode. The fewer number of vnodes, the faster it will be to read. The smaller the vnode, the faster it will be to write, and less data we copy when we add, remove or change a file. In practice we find 10k entries per vnode is a good compromise in terms of storage and performance.</p>
 <h2 id="benefits-of-the-merkle-tree"><a class="header" href="#benefits-of-the-merkle-tree">Benefits of the Merkle Tree</a></h2>
 <p>Hopefully if you are new to Merkle Trees, this should give you a good intuition for how they work in practice. There are a few nice properties of a Merkle Tree as our data structure.</p>
 <ol>
@@ -1245,7 +1283,31 @@ oxen push origin main
 <div style="break-before: page; page-break-before: always;"></div><h1 id="init"><a class="header" href="#init">init</a></h1>
 <p><code>oxen init</code></p>
 <p>TODO: add details on how the command works</p>
-<div style="break-before: page; page-break-before: always;"></div><div style="break-before: page; page-break-before: always;"></div><div style="break-before: page; page-break-before: always;"></div><div style="break-before: page; page-break-before: always;"></div><div style="break-before: page; page-break-before: always;"></div><div style="break-before: page; page-break-before: always;"></div><div style="break-before: page; page-break-before: always;"></div><h1 id="clone"><a class="header" href="#clone">clone</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><div style="break-before: page; page-break-before: always;"></div><h1 id="oxen-add"><a class="header" href="#oxen-add">oxen add</a></h1>
+<p>After initializing a repository, you can add files to it using the <code>oxen add</code> command.</p>
+<pre><code class="language-bash">oxen add &lt;file&gt;
+</code></pre>
+<p>This is the workhorse of oxen that does most of the compute. Under the hood, <code>oxen add</code> does a few operations:</p>
+<ul>
+<li>Hashes the file(s) and directory structure</li>
+<li>Computes any additional metadata about the file
+<ul>
+<li>Sizes</li>
+<li>File Types</li>
+<li>Schemas (for JSON, CSV, etc.)</li>
+</ul>
+</li>
+<li>Copies a version of the file into the content addressable <code>versions</code> store</li>
+<li>Adds a record to the <code>staged</code> index</li>
+</ul>
+<h1 id="under-the-hood"><a class="header" href="#under-the-hood">Under the hood</a></h1>
+<p>In order to see what this looks like on disk, let's create a few files and directories, then add them to a fresh repository.</p>
+<pre><code class="language-bash">mkdir my-project
+cd my-project
+oxen init
+</code></pre>
+<p>TODO:</p>
+<div style="break-before: page; page-break-before: always;"></div><div style="break-before: page; page-break-before: always;"></div><div style="break-before: page; page-break-before: always;"></div><div style="break-before: page; page-break-before: always;"></div><div style="break-before: page; page-break-before: always;"></div><h1 id="clone"><a class="header" href="#clone">clone</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><div style="break-before: page; page-break-before: always;"></div><h1 id="data-types"><a class="header" href="#data-types">Data Types</a></h1>
 <p>There are core data types that Oxen detects and can do special processing with. This helps increase visibility into your data, and makes it extensible to your use case.</p>
 <ul>
@@ -1341,11 +1403,18 @@ oxen push origin main
 <p>There are certain properties of git that make it great for versioning code, but fall short when it comes to data. Git is really good at huge histories of small text files, like code bases. Where git does not shine is binary files. Many datasets consist of binary files such as images, video, audio, parquet files, etc which are not efficiently stored in git.</p>
 <p>There are extensions to git such as git-LFS that work okay when you have one or two large assets that are complimentary to your code, but they are still extremely slow when it comes to versioning large sets of large binary files.</p>
 <p>This section dives into some of the reasons why we did not want to use Git-LFS and wrote an entire VCS from scratch.</p>
+<h1 id="what-git-is-missing-could-be-a-good-blog-post-title"><a class="header" href="#what-git-is-missing-could-be-a-good-blog-post-title">What git is missing (could be a good blog post title)</a></h1>
+<p>lorem ipsum...</p>
 <h1 id="lfs-is-more-complexity"><a class="header" href="#lfs-is-more-complexity">LFS is More Complexity</a></h1>
 <p>The first reason is purely the mental model users have to keep in their head.</p>
 <p>To quote <a href="https://gregoryszorc.com/blog/2021/05/12/why-you-shouldn%27t-use-git-lfs/">Gregory Szorc</a>:</p>
 <p><em>"LFS is more complex for Git end users.</em></p>
 <p><em>Git users have to install, configure, and sometimes know about the existence of Git LFS. Version control should just work. Large file handling should just work. End-users shouldn't have to care that large files are handled slightly differently from small files."</em></p>
+<h1 id="push--pull-bottleneck"><a class="header" href="#push--pull-bottleneck">Push / Pull Bottleneck</a></h1>
+<p>How do I atomically add one file without pulling everything? Even further...how do I modify one row or column?</p>
+<p>Ex) you update test.csv, I update README.md, we can both push without worrying about pulling first.</p>
+<p>Ex) Updating data frame directly with duckdb</p>
+<p>Do we call this a VCS-DB or some new term? Allows for higher throughput writes while allowing you to snapshot and diff and query the history.</p>
 <h1 id="network-protocols"><a class="header" href="#network-protocols">Network Protocols</a></h1>
 <p>Git sequentially reads and writes objects via <a href="https://dev.to/calebsander/git-internals-part-3-the-ssh-transport-2m5c">packfiles</a> over the network to create your local and remote copies of the repository. This is inefficient for large files, resulting in slow uploads / downloads of data that is not text.</p>
 <h1 id="sha-256-is-slow"><a class="header" href="#sha-256-is-slow">SHA-256 is Slow</a></h1>

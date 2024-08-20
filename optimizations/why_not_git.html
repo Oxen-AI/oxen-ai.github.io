@@ -179,11 +179,18 @@
 <p>There are certain properties of git that make it great for versioning code, but fall short when it comes to data. Git is really good at huge histories of small text files, like code bases. Where git does not shine is binary files. Many datasets consist of binary files such as images, video, audio, parquet files, etc which are not efficiently stored in git.</p>
 <p>There are extensions to git such as git-LFS that work okay when you have one or two large assets that are complimentary to your code, but they are still extremely slow when it comes to versioning large sets of large binary files.</p>
 <p>This section dives into some of the reasons why we did not want to use Git-LFS and wrote an entire VCS from scratch.</p>
+<h1 id="what-git-is-missing-could-be-a-good-blog-post-title"><a class="header" href="#what-git-is-missing-could-be-a-good-blog-post-title">What git is missing (could be a good blog post title)</a></h1>
+<p>lorem ipsum...</p>
 <h1 id="lfs-is-more-complexity"><a class="header" href="#lfs-is-more-complexity">LFS is More Complexity</a></h1>
 <p>The first reason is purely the mental model users have to keep in their head.</p>
 <p>To quote <a href="https://gregoryszorc.com/blog/2021/05/12/why-you-shouldn%27t-use-git-lfs/">Gregory Szorc</a>:</p>
 <p><em>"LFS is more complex for Git end users.</em></p>
 <p><em>Git users have to install, configure, and sometimes know about the existence of Git LFS. Version control should just work. Large file handling should just work. End-users shouldn't have to care that large files are handled slightly differently from small files."</em></p>
+<h1 id="push--pull-bottleneck"><a class="header" href="#push--pull-bottleneck">Push / Pull Bottleneck</a></h1>
+<p>How do I atomically add one file without pulling everything? Even further...how do I modify one row or column?</p>
+<p>Ex) you update test.csv, I update README.md, we can both push without worrying about pulling first.</p>
+<p>Ex) Updating data frame directly with duckdb</p>
+<p>Do we call this a VCS-DB or some new term? Allows for higher throughput writes while allowing you to snapshot and diff and query the history.</p>
 <h1 id="network-protocols"><a class="header" href="#network-protocols">Network Protocols</a></h1>
 <p>Git sequentially reads and writes objects via <a href="https://dev.to/calebsander/git-internals-part-3-the-ssh-transport-2m5c">packfiles</a> over the network to create your local and remote copies of the repository. This is inefficient for large files, resulting in slow uploads / downloads of data that is not text.</p>
 <h1 id="sha-256-is-slow"><a class="header" href="#sha-256-is-slow">SHA-256 is Slow</a></h1>

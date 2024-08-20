@@ -173,7 +173,31 @@
 
                 <div id="content" class="content">
                     <main>
-                        
+                        <h1 id="oxen-add"><a class="header" href="#oxen-add">oxen add</a></h1>
+<p>After initializing a repository, you can add files to it using the <code>oxen add</code> command.</p>
+<pre><code class="language-bash">oxen add &lt;file&gt;
+</code></pre>
+<p>This is the workhorse of oxen that does most of the compute. Under the hood, <code>oxen add</code> does a few operations:</p>
+<ul>
+<li>Hashes the file(s) and directory structure</li>
+<li>Computes any additional metadata about the file
+<ul>
+<li>Sizes</li>
+<li>File Types</li>
+<li>Schemas (for JSON, CSV, etc.)</li>
+</ul>
+</li>
+<li>Copies a version of the file into the content addressable <code>versions</code> store</li>
+<li>Adds a record to the <code>staged</code> index</li>
+</ul>
+<h1 id="under-the-hood"><a class="header" href="#under-the-hood">Under the hood</a></h1>
+<p>In order to see what this looks like on disk, let's create a few files and directories, then add them to a fresh repository.</p>
+<pre><code class="language-bash">mkdir my-project
+cd my-project
+oxen init
+</code></pre>
+<p>TODO:</p>
+
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
