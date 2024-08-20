@@ -183,7 +183,7 @@
     pub commit_id: String,
 }
 <span class="boring">}</span></code></pre></pre>
-<p>When a repository is first initialized with <code>oxen init</code>, a single commit is made and a branch is created called <code>main</code> that points to it.</p>
+<p>On the first commit of a repository, a default branch called <code>main</code> is created and points to the initial commit.</p>
 <h1 id="refs"><a class="header" href="#refs">Refs</a></h1>
 <p>To see how this works in practice, let's look at how branches are stored on disk. All of the branches within a repository are stored in a key-value rocksdb database. This database can be found in the <code>.oxen/refs</code> directory.</p>
 <p>Let's inspect this database with our <code>oxen db list</code> command.</p>
@@ -255,8 +255,8 @@ c719c887cc250784
 <p>That's it! The relationship between branches, commits, and the HEAD commit is really that simple. Branches are just a named reference to a commit id that make it easier to find a particular chain of commits.</p>
 <p>You can progress a branch as many commits as you want without affecting the main branch. When you are ready to merge your branch into the main branch, you can use the <code>oxen merge</code> command which will be covered later.</p>
 <h1 id="next-up-files--directories"><a class="header" href="#next-up-files--directories">Next Up: Files &amp; Directories</a></h1>
-<p>Now that you know the basic data structures for branches and commits, let's dive into how branches and commits are tied to a set of files and directories.</p>
-<p>Next Up: <a href="/domains/objects.html">Files &amp; Directories</a></p>
+<p>Now that you know the basic data structures for branches and commits, let's dive into how branches and commits are tied to a set of files and directories with the Merkle Tree data structure.</p>
+<p>Next Up: <a href="/domains/merkle_trees.html">Merkle Trees</a></p>
 
                     </main>
 

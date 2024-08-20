@@ -173,26 +173,29 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="domain-objects"><a class="header" href="#domain-objects">Domain Objects</a></h1>
+                        <h1 id="-domain-objects"><a class="header" href="#-domain-objects">🐂 Domain Objects</a></h1>
 <p>Now for the fun part! Hopefully you have already <a href="./development/build_and_run.html">built Oxen</a> and learned how to <a href="./development/add_command.html">add your first command</a>.</p>
 <p>In order to fully grok the Oxen codebase, it's important to define a few terms and understand the different <a href="domains.html">domain objects</a>. This way you'll have the right terminology to build upon and know where to look when adding or debugging features.</p>
 <p>These domains are defined so we are all speaking the same language while diving into the code base. We will start with what the objects are, why they exist, and how objects are stored on disk, then we will build up intuition of how the system works as a whole.</p>
-<h1 id="oxen-init"><a class="header" href="#oxen-init">oxen init</a></h1>
+<h1 id="-peeking-under-the-hood"><a class="header" href="#-peeking-under-the-hood">👀 Peeking Under the Hood</a></h1>
 <p>Similar to <code>git</code>, we store all the meta data for a repository in a hidden local <code>.oxen</code> directory. To start the learning journey let's initialize and empty Oxen repository locally by using <a href="./commands/init.html">oxen init</a>.</p>
 <pre><code class="language-bash">mkdir my-repo
 cd my-repo
 oxen init
+echo "# New Oxen Repo" &gt; README.md
+oxen add README.md
+oxen commit -m "Initial Commit"
 </code></pre>
 <p>The best way to start learning the architecture and different domain objects is by poking around in this directory.</p>
 <pre><code class="language-bash">ls .oxen
 </code></pre>
 <p>You will see a variety of files and folders, including:</p>
-<pre><code>commits/
-history/
-objects/
-refs/
-HEAD
+<pre><code>HEAD
 config.toml
+history/
+refs/
+tree/
+versions/
 </code></pre>
 <p>Let's use these files and folders as a jumping off point to learn about the different domain objects.</p>
 <h1 id="first-up-repositories"><a class="header" href="#first-up-repositories">First Up: Repositories</a></h1>

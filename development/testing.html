@@ -180,21 +180,22 @@
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>// Initialize Repo
-let repo = command::init("./test_repo")?;
+let repo = repositories::init("./test_repo")?;
 // Add File
-command::add(&amp;repo, &amp;"hello.txt")?;
+repositories::add(&amp;repo, &amp;"hello.txt")?;
 // Commit File
-command::commit(&amp;repo, &amp;"add hello.txt")?;
+repositories::commit(&amp;repo, &amp;"add hello.txt")?;
 <span class="boring">}</span></code></pre></pre>
 <p>We chain these commands together into a sequence of integration and unit tests to make sure the end to end system works as expected.</p>
 <h1 id="writing-tests"><a class="header" href="#writing-tests">Writing Tests</a></h1>
-<p>The best place to reference when looking at tests within Oxen are the <code>lib/src/command</code> modules themselves. You'll find some familiar names within the <code>command::</code> namespace.</p>
+<p>The best place to reference when looking at tests within Oxen are the <code>lib/src/repositories</code> modules themselves. You'll find some familiar names within the <code>repositories::</code> namespace.</p>
 <p>For example:</p>
 <ul>
-<li><a href="https://github.com/Oxen-AI/Oxen/blob/main/src/lib/src/command/init.rs">command::init</a></li>
-<li><a href="https://github.com/Oxen-AI/Oxen/blob/main/src/lib/src/command/add.rs">command::add</a></li>
-<li><a href="https://github.com/Oxen-AI/Oxen/blob/main/src/lib/src/command/commit.rs">command::commit</a></li>
+<li><a href="https://github.com/Oxen-AI/Oxen/blob/main/src/lib/src/repositories/init.rs">repositories::init</a></li>
+<li><a href="https://github.com/Oxen-AI/Oxen/blob/main/src/lib/src/repositories/add.rs">repositories::add</a></li>
+<li><a href="https://github.com/Oxen-AI/Oxen/blob/main/src/lib/src/repositories/commit.rs">repositories::commit</a></li>
 </ul>
+<p>We follow a Domain Driven Design approach to development. The tests are located within the same module as the code they are testing. Checkout all the domain objects <a href="/domains.html">here</a>.</p>
 <p>All tests for these commands are found below their respective module. Let's look at an example command and break down the different parts of the test.</p>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -203,10 +204,10 @@ mod tests {
     // ... include necessary modules
 
     #[test]
-    fn test_command_init() -&gt; Result&lt;(), OxenError&gt; {
+    fn test_repositories_init() -&gt; Result&lt;(), OxenError&gt; {
         test::run_empty_dir_test(|repo_dir| {
             // Init repo
-            let repo = command::init(repo_dir)?;
+            let repo = repositories::init(repo_dir)?;
 
             // Init should create the .oxen directory
             let hidden_dir = util::fs::oxen_hidden_dir(repo_dir);
@@ -221,9 +222,9 @@ mod tests {
 <span class="boring">}</span></code></pre></pre>
 <p>First you will notice that the tests are within a <code>mod tests</code> block. This is a Rust feature that allows you to group tests together within a particular module.</p>
 <p>In order to run all the tests within a particular command module you can run:</p>
-<pre><code class="language-bash">cargo test --lib command::init
+<pre><code class="language-bash">cargo test --lib repositories::init
 </code></pre>
-<p>This will run all the tests within the <code>command::init</code> module.</p>
+<p>This will run all the tests within the <code>repositories::init</code> module.</p>
 <h1 id="returning-errors"><a class="header" href="#returning-errors">Returning Errors</a></h1>
 <p>You will notice that all the tests return <code>Result&lt;(), OxenError&gt;</code>. This means they will catch any errors that might occur when running different command.</p>
 <p>The <code>OxenError</code> is a custom error type that is defined in the <a href="https://github.com/Oxen-AI/Oxen/blob/main/src/lib/src/error.rs">lib/src/error.rs</a> file. It is a simple enum that represents an error that can occur in Oxen. When you unwrap <code>?</code> a function that returns a <code>Result&lt;(), OxenError&gt;</code> you will receive the error and the test will fail.</p>

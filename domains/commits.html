@@ -175,9 +175,9 @@
                     <main>
                         <h1 id="commits"><a class="header" href="#commits">Commits</a></h1>
 <p>If you are familiar with <code>git</code> the concept of a <code>commit</code> and <code>branch</code> should be very familiar. What you may not have done is look under the hood as to how they are stored. In Oxen, many of the concepts are similar.</p>
-<p>A commit is a checksum or <a href="optimizations/hashing.html">hash value</a> representing all the files is within a specific version. You may recognize them as a string of hexadecimal characters  (0–9 and a–f) looking something like <code>4b27c4b16fb736a4</code>.</p>
+<p>A commit is a checksum or <a href="optimizations/hashing.html">hash value</a> representing all the files is within a specific version. You may recognize them as a string of hexadecimal characters  (0–9 and a–f) looking something like <code>a72b68036af144bfe2dff0fb08a746c4</code>.</p>
 <p>Run <code>oxen log</code> within your Oxen repository and you will see the initial commit.</p>
-<pre><code>commit 4b27c4b16fb736a4
+<pre><code>commit a72b68036af144bfe2dff0fb08a746c4
 
 Author: ox
 Date:   Thursday, 09 May 2024 22:29:00 +00
@@ -185,37 +185,46 @@ Date:   Thursday, 09 May 2024 22:29:00 +00
     Initialized Repo 🐂
 </code></pre>
 <p>You will see these hashes all over the place in Oxen and can use them as pointers to get to specific versions.</p>
-<h1 id="commits-database"><a class="header" href="#commits-database">Commits Database</a></h1>
-<p>In order to understand the Commit object better, let's look at how it is stored on disk. Again we are going to peek in the <code>.oxen</code> directory as our starting point. Specifically at the <code>commits</code> directory.</p>
-<pre><code>$ ls .oxen/commits
+<h1 id="commits-as-merkle-tree-nodes"><a class="header" href="#commits-as-merkle-tree-nodes">Commits as Merkle Tree Nodes</a></h1>
+<p>Under the hood most objects in Oxen are stored in a <a href="https://en.wikipedia.org/wiki/Merkle_tree">Merkle Tree</a> data structure. At the root of each merkle tree is a commit object.</p>
+<p>All the nodes in the tree are stored in the <code>.oxen/tree/nodes</code> directory.</p>
+<pre><code>$ tree .oxen/tree/nodes/
 
-000008.sst       000014.log       IDENTITY         LOG              OPTIONS-000012
-000013.sst       CURRENT          LOCK             MANIFEST-000015  OPTIONS-000017
+.oxen/tree/nodes/
+├── 589
+│   └── 8d0aa535709791ea84a341307fc3
+│       ├── children
+│       └── node
+├── 88b
+│   └── e33604f2ae2153443bff158c31495
+│       ├── children
+│       └── node
+└── a72
+    └── b68036af144bfe2dff0fb08a746c4
+        ├── children
+        └── node
 </code></pre>
-<p>This entire directory is the commits database. Under the hood Oxen stores most of it's data with <a href="https://rocksdb.org/">RocksDB</a>. This is a fast key-value store that makes it fast to insert and read data without loading the entire database into memory. Specifically we use the rust bindings for RocksDB found in <a href="https://docs.rs/rocksdb/latest/rocksdb/">this repository</a>.</p>
-<p>These files are hard to inspect on their own, so we can use the <code>oxen db</code> command to inspect the commits database. The <code>oxen db list</code> command will print out all the commits in the database.</p>
-<pre><code>$ oxen db list .oxen/commits
+<p>You'll see that nodes are content addressable by their hash, and each subdirectory is a level in the merkle tree. These files are hard to inspect on their own, so we can use the <code>oxen node</code> command to inspect the individual node databases.</p>
+<pre><code>$ oxen node a72b68036af144bfe2dff0fb08a746c4
+
+CommitNode
+	hash: a72b68036af144bfe2dff0fb08a746c4
+	message: adding README
+	parent_ids: []
+	author: oxbot
+	email: oxbot@oxen.ai
+	timestamp: 2024-08-19 23:06:41.525894 +00:00:00
 </code></pre>
-<p>You'll see this prints the entire key value store as tab separated values.</p>
-<pre><code>2c610ae8e424a4c8	{"id":"2c610ae8e424a4c8","parent_ids":["440b54a690b44fd7"],"message":"Add hello.txt and world.txt","author":"oxbot","email":"oxbot@oxen.ai","root_hash":"cf2c5e5f057b589230654260d07fa7c3","timestamp":"2024-05-23T00:40:20.555747Z"}
-440b54a690b44fd7	{"id":"440b54a690b44fd7","parent_ids":[],"message":"Initialized Repo 🐂","author":"oxbot","email":"oxbot@oxen.ai","root_hash":"99aa06d3014798d86001c324468d497f","timestamp":"2024-05-23T00:40:02.047406Z"}
-a36e6239a1ab49d4	{"id":"a36e6239a1ab49d4","parent_ids":["2c610ae8e424a4c8"],"message":"Update hello.txt","author":"oxbot","email":"oxbot@oxen.ai","root_hash":"7121f5302a90ea338f129ca169a39739","timestamp":"2024-05-23T00:43:53.303893Z"}
+<p>Here we have a nice beautiful commit object. There is a list of parent commit ids, a message, the author, the email, and the timestamp.</p>
+<p>To see the full tree that lies below this commit, you can use the <code>oxen tree</code> command.</p>
+<pre><code>$ oxen tree -n a72b68036af144bfe2dff0fb08a746c4
 </code></pre>
-<p>If you want to get a specific commit, you can use the <code>oxen db get</code> command. For example, to get the commit <code>2c610ae8e424a4c8</code>, you can run the following command.</p>
-<pre><code>$ oxen db get .oxen/commits/ 2c610ae8e424a4c8 | jq
+<p>You'll see that the tree is printed out in a human readable format. This tree only has a single README.md file in the root directory. Trees can get much more complex, and we will dive into this more in the <a href="merkle_trees.html">Merkle Trees</a> section.</p>
+<pre><code>[Commit] a72b68036af144bfe2dff0fb08a746c4 -&gt; adding README parent_ids ""
+  [Dir]  -&gt; 5898d0aa535709791ea84a341307fc3 11 B (1 nodes) (1 files) [latest commit a72b68036af144bfe2dff0fb08a746c4]
+    [VNode] 88be33604f2ae2153443bff158c31495 (1 children)
+      [File] README.md -&gt; 43744a971e29c0f56c293f855f11814 11 B [latest commit a72b68036af144bfe2dff0fb08a746c4]
 </code></pre>
-<pre><code>{
-  "id": "2c610ae8e424a4c8",
-  "parent_ids": [
-    "440b54a690b44fd7"
-  ],
-  "message": "Add hello.txt and world.txt",
-  "author": "oxbot",
-  "email": "oxbot@oxen.ai",
-  "timestamp": "2024-05-23T00:40:20.555747Z"
-}
-</code></pre>
-<p>Ah, there is a nice beautiful commit object. You can see that the raw values are simply stored in the db as json. There is a list of parent commit ids, a message, the author, the email, and the timestamp.</p>
 <h1 id="commit-metadata"><a class="header" href="#commit-metadata">Commit Metadata</a></h1>
 <p>All of the metadata within a commit object is important for computing it's <code>id</code>. The id can be used to verify the integrity of the data within a commit. More on this later.</p>
 <p>The first piece of metadata is the user that made the commit. The user data is read from the global <code>~/.config/oxen/user_config.toml</code> file. You can set your user info with the <code>oxen config</code> command.</p>
