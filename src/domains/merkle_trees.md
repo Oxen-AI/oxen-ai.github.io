@@ -379,7 +379,13 @@ $ oxen tree
 
 You will see that the vnode `88e4003b65f2f3f16c16a91230593746` is the one that contains the new image. The other VNode's have not changed. As a result, we only had to make a copy of a single node with 3 children instead of 20.
 
-When you get into larger directories, there is a trade off between number of vnodes and the size of the vnode. The fewer number of vnodes, the faster it will be to read. The smaller the vnode, the faster it will be to write, and less data we copy when we add, remove or change a file. In practice we find 10k entries per vnode is a good compromise in terms of storage and performance.
+When you get into larger directories, there is a trade off between number of vnodes and the size of the vnode. The fewer number of vnodes, the faster it will be to read all the nodes. The smaller the vnode, the faster it will be to write, and less data we copy when we add, remove or change a file. In practice we find 10k entries per vnode is a good compromise in terms of storage and performance.
+
+## File Chunk Deduplication
+
+Not yet implemented, but scoped out here:
+
+[File Chunk Deduplication](/optimizations/file_chunk_deduplication.md)
 
 ## Benefits of the Merkle Tree
 

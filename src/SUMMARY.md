@@ -6,6 +6,7 @@
     - [Installation](./development/installation.md)
     - [Build & Run](./development/build_and_run.md)
     - [Adding a Command](./development/add_command.md)
+    - [Coding Guidelines](./development/coding_guidelines.md)
     - [Testing](./development/testing.md)
     - [Release](./development/release.md)
 
@@ -42,6 +43,7 @@
     - [Concurrency](./optimizations/concurrency.md)
     - [Hashing](./optimizations/hashing.md)
     - [Compression](./optimizations/compression.md)
+    - [File Chunk Deduplication](./optimizations/file_chunk_deduplication.md)
     - [Networking](./optimizations/networking.md)
     - [Remote Workspace](./optimizations/remote_workspace.md)
     - [Storage](./optimizations/storage.md)
