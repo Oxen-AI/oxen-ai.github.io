@@ -533,6 +533,25 @@ cargo clippy --fix --allow-dirty
 <p>As function parameters, instead of taking in a <code>&amp;Path</code>, <code>&amp;str</code>, <code>PathBuf</code> or <code>String</code> take in a <code>impl AsRef&lt;Path&gt;</code> or <code>impl AsRef&lt;str&gt;</code>. This way the consumer can decide whether or not they want the value to be borrowed or passed in by reference, and does not have to make sure the value is a reference.</p>
 <p>This makes it much is easier and more flexible for external consumers.</p>
 <p>TODO: Examples of signatures and external consumers</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn load_path(repo: &amp;LocalRepository, path: impl AsRef&lt;Path&gt;) -&gt; Result&lt;MerkleTreeNode&gt;
+<span class="boring">}</span></code></pre></pre>
+<p>vs</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn load_path(repo: &amp;LocalRepository, path: PathBuf) -&gt; Result&lt;MerkleTreeNode&gt;
+<span class="boring">}</span></code></pre></pre>
+<p>vs</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn load_path(repo: &amp;LocalRepository, path: &amp;Path) -&gt; Result&lt;MerkleTreeNode&gt;
+<span class="boring">}</span></code></pre></pre>
+<h2 id="use-utilfs-functions-over-stdfs"><a class="header" href="#use-utilfs-functions-over-stdfs">Use util::fs functions over std::fs</a></h2>
+<p>The util::fs functions handle errors a little more gracefully and have additional functionality for reading and writing to the file system cross platform. For example <code>std::fs::remove_file</code> does not tell you which file could not be removed and will give you an error like this:</p>
+<pre><code>Os { code: 2, kind: NotFound, message: "No such file or directory" }
+</code></pre>
+<p><code>util::fs::remove_file</code> will add the file name to the error message so you can see which file could not be removed.</p>
 <h2 id="be-cognizant-of-loading-too-much-of-the-merkle-tree"><a class="header" href="#be-cognizant-of-loading-too-much-of-the-merkle-tree">Be cognizant of loading too much of the Merkle Tree</a></h2>
 <p>The <code>CommitMerkleTree</code> struct lets you load subsets of the merkle tree and skip directly to dir nodes. It also has functionality to only load 1 or 2 levels deep (avoiding deep recursion).</p>
 <p>Make sure you are only loading what you need to get the information you need to return.</p>
