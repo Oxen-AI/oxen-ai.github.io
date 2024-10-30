@@ -29,6 +29,32 @@ This makes it much is easier and more flexible for external consumers.
 
 TODO: Examples of signatures and external consumers
 
+```rust
+pub fn load_path(repo: &LocalRepository, path: impl AsRef<Path>) -> Result<MerkleTreeNode>
+```
+
+vs
+
+```rust
+pub fn load_path(repo: &LocalRepository, path: PathBuf) -> Result<MerkleTreeNode>
+```
+
+vs
+
+```rust
+pub fn load_path(repo: &LocalRepository, path: &Path) -> Result<MerkleTreeNode>
+```
+
+## Use util::fs functions over std::fs
+
+The util::fs functions handle errors a little more gracefully and have additional functionality for reading and writing to the file system cross platform. For example `std::fs::remove_file` does not tell you which file could not be removed and will give you an error like this:
+
+```
+Os { code: 2, kind: NotFound, message: "No such file or directory" }
+```
+
+`util::fs::remove_file` will add the file name to the error message so you can see which file could not be removed.
+
 ## Be cognizant of loading too much of the Merkle Tree
 
 The `CommitMerkleTree` struct lets you load subsets of the merkle tree and skip directly to dir nodes. It also has functionality to only load 1 or 2 levels deep (avoiding deep recursion).
